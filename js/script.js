@@ -24,7 +24,7 @@ const LATITUDE_ENTRY =
 ========================================================= */
 
 const SHEET_ID =
-    "185KFCSkrNdWvzWWPKNuMXpfnJeSnX--gcWVn48";
+    "185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48";
 
 
 const SHEET_GID =
@@ -32,7 +32,7 @@ const SHEET_GID =
 
 
 const SHEET_CSV_URL =
-    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
+    `https://docs.google.com/spreadsheets/d/185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48/edit?resourcekey=&gid=1834860223#gid=1834860223`;
 
 
 /* =========================================================
