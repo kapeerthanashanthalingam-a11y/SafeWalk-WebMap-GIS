@@ -1,145 +1,49 @@
 /* =========================================================
    SAFEWALK
    PUBLIC PEDESTRIAN SAFETY & COMPLAINT WEB MAP
-   WESTERN PROVINCE - SRI LANKA
-   ========================================================= */
+   WESTERN PROVINCE
+========================================================= */
 
 
 /* =========================================================
    1. GOOGLE FORM SETTINGS
-   ========================================================= */
+========================================================= */
 
 const GOOGLE_FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSdgncnCOESnZJ2IJYGJAc-TssjL8kB_oAfr15CEbLBS63tLDQ/viewform";
 
+const LONGITUDE_ENTRY =
+    "entry.756715849";
 
-/*
-   Your Google Form entry IDs obtained from the form.
-*/
-
-const FORM_ENTRIES = {
-
-    issue:
-        "entry.1863083057",
-
-    longitude:
-        "entry.756715849",
-
-    severity:
-        "entry.302271118",
-
-    description:
-        "entry.507806241",
-
-    latitude:
-        "entry.128829379",
-
-    date:
-        "entry.2123383240"
-
-};
+const LATITUDE_ENTRY =
+    "entry.1288249379";
 
 
 /* =========================================================
-   2. GOOGLE SHEET
-   ========================================================= */
-
-const GOOGLE_SHEET_ID =
-    "185KFCSkrNdNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48";
-
-
-/*
-   IMPORTANT:
-   Use the exact spreadsheet ID supplied by you.
-
-   If your actual ID is:
-
-   185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48
-
-   then the value should be:
-*/
+   2. GOOGLE SHEET SETTINGS
+========================================================= */
 
 const SHEET_ID =
-    "185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48";
+    "185KFCSkrNdWvzWWPKNuMXpfnJeSnX--gcWVn48";
 
 
 const SHEET_GID =
     "1834860223";
 
 
-/*
-   Google Visualization API URL.
-
-   It reads the responses from the sheet.
-*/
-
-const SHEET_URL =
-    "https://docs.google.com/spreadsheets/d/" +
-    SHEET_ID +
-    "/gviz/tq?tqx=out:json&gid=" +
-    SHEET_GID;
+const SHEET_CSV_URL =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${SHEET_GID}`;
 
 
 /* =========================================================
-   3. GLOBAL VARIABLES
-   ========================================================= */
+   3. MAP INITIALIZATION
+========================================================= */
 
-let map;
+const map = L.map("map", {
 
-let westernProvince;
+    center: [6.9271, 80.7789],
 
-let westernLayer;
-
-let selectedMarker = null;
-
-let currentLocationMarker = null;
-
-let selectedLat = null;
-
-let selectedLng = null;
-
-let reportLayerGroup;
-
-let reports = [];
-
-
-/* =========================================================
-   4. BASE MAPS
-   ========================================================= */
-
-const osm = L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        maxZoom: 19,
-
-        attribution:
-            '&copy; OpenStreetMap contributors'
-    }
-);
-
-
-const satellite = L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-        maxZoom: 19,
-
-        attribution:
-            "Tiles &copy; Esri"
-    }
-);
-
-
-/* =========================================================
-   5. INITIALIZE MAP
-   ========================================================= */
-
-map = L.map("map", {
-
-    center: [6.9271, 79.8612],
-
-    zoom: 11,
-
-    layers: [osm],
+    zoom: 10,
 
     zoomControl: true
 
@@ -147,48 +51,205 @@ map = L.map("map", {
 
 
 /* =========================================================
-   6. REPORT LAYER
-   ========================================================= */
+   4. BASE MAPS
+========================================================= */
 
-reportLayerGroup = L.markerClusterGroup({
+const osm = L.tileLayer(
 
-    showCoverageOnHover: false,
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
 
-    spiderfyOnMaxZoom: true,
+    {
 
-    disableClusteringAtZoom: 16
+        maxZoom: 20,
 
-});
+        attribution:
+            '&copy; OpenStreetMap contributors'
+
+    }
+
+);
 
 
-map.addLayer(reportLayerGroup);
+const satellite = L.tileLayer(
+
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+
+    {
+
+        maxZoom: 20,
+
+        attribution:
+            "Tiles &copy; Esri"
+
+    }
+
+);
+
+
+/* OSM DEFAULT */
+
+osm.addTo(map);
 
 
 /* =========================================================
-   7. BASE MAP CONTROL
-   ========================================================= */
+   5. LAYER GROUPS
+========================================================= */
 
-const baseMaps = {
+const westernProvinceLayer =
+    L.layerGroup();
 
-    "🗺️ OpenStreetMap": osm,
+const roadsLayer =
+    L.layerGroup();
 
-    "🛰️ Satellite": satellite
+const railwayLayer =
+    L.layerGroup();
+
+const railwayStationsLayer =
+    L.layerGroup();
+
+const busStopsLayer =
+    L.layerGroup();
+
+const schoolsLayer =
+    L.layerGroup();
+
+const hospitalsLayer =
+    L.layerGroup();
+
+const parkingLayer =
+    L.layerGroup();
+
+const trafficLightsLayer =
+    L.layerGroup();
+
+const pedestrianCrossingsLayer =
+    L.layerGroup();
+
+const complaintsLayer =
+    L.layerGroup();
+
+
+/* =========================================================
+   6. GEOJSON FILE PATHS
+========================================================= */
+
+const DATA_PATH =
+    "data/";
+
+
+const files = {
+
+    westernProvince:
+        DATA_PATH + "western_province.geojson",
+
+    roads:
+        DATA_PATH + "roads.geojson",
+
+    railway:
+        DATA_PATH + "railway.geojson",
+
+    railwayStations:
+        DATA_PATH + "railway_stations.geojson",
+
+    busStops:
+        DATA_PATH + "busstops.geojson",
+
+    schools:
+        DATA_PATH + "schools.geojson",
+
+    hospitals:
+        DATA_PATH + "hospitals.geojson",
+
+    parking:
+        DATA_PATH + "parking.geojson",
+
+    trafficLights:
+        DATA_PATH + "traffic_lights.geojson",
+
+    pedestrianCrossings:
+        DATA_PATH + "pedestrian_crossings.geojson"
 
 };
 
 
 /* =========================================================
-   8. OVERLAY OBJECT
-   ========================================================= */
+   7. GENERAL POPUP FUNCTION
+========================================================= */
 
-const overlayMaps = {};
+function createPopup(feature) {
+
+    const properties =
+        feature.properties || {};
+
+    let html =
+        "<div style='min-width:180px;'>";
+
+    let found = false;
+
+
+    Object.keys(properties).forEach(
+        function (key) {
+
+            const value =
+                properties[key];
+
+            if (
+                value !== null &&
+                value !== undefined &&
+                value !== ""
+            ) {
+
+                found = true;
+
+                html +=
+                    `<b>${formatFieldName(key)}:</b> ${value}<br>`;
+
+            }
+
+        }
+    );
+
+
+    if (!found) {
+
+        html +=
+            "<b>Information:</b> No additional information";
+
+    }
+
+
+    html += "</div>";
+
+    return html;
+
+}
+
+
+/* =========================================================
+   8. FIELD NAME FORMATTER
+========================================================= */
+
+function formatFieldName(name) {
+
+    return String(name)
+
+        .replace(/_/g, " ")
+
+        .replace(/\b\w/g,
+            function (letter) {
+
+                return letter.toUpperCase();
+
+            });
+
+}
 
 
 /* =========================================================
    9. LOAD WESTERN PROVINCE
-   ========================================================= */
+========================================================= */
 
-fetch("data/western_province.geojson")
+fetch(files.westernProvince)
 
     .then(response => {
 
@@ -206,72 +267,78 @@ fetch("data/western_province.geojson")
 
     .then(data => {
 
-        westernProvince = data;
+        const layer =
+            L.geoJSON(
+                data,
+                {
+
+                    style: {
+
+                        color: "#d62828",
+
+                        weight: 3,
+
+                        fillColor: "#ffffff",
+
+                        fillOpacity: 0.05
+
+                    },
+
+                    onEachFeature:
+                        function (
+                            feature,
+                            layer
+                        ) {
+
+                            layer.bindPopup(
+                                `
+                                <div>
+                                    <h3 style="margin-top:0;">
+                                        🗺️ Western Province
+                                    </h3>
+
+                                    <b>Province:</b>
+                                    Western Province
+                                    <br>
+
+                                    <b>Country:</b>
+                                    Sri Lanka
+                                </div>
+                                `
+                            );
+
+                        }
+
+                }
+            );
 
 
-        westernLayer = L.geoJSON(
-            data,
-            {
-
-                style: {
-
-                    color: "#d62828",
-
-                    weight: 3,
-
-                    opacity: 1,
-
-                    fillColor: "#f8d7da",
-
-                    fillOpacity: 0.12
-
-                },
-
-                onEachFeature:
-                    westernFeaturePopup
-
-            }
-        ).addTo(map);
+        westernProvinceLayer
+            .addLayer(layer);
 
 
-        overlayMaps["🟥 Western Province"] =
-            westernLayer;
+        westernProvinceLayer
+            .addTo(map);
 
 
-        /*
-           Fit map to Western Province.
-        */
+        /* Automatically zoom to province */
 
-        map.fitBounds(
-            westernLayer.getBounds(),
-            {
-                padding: [40, 40]
-            }
-        );
+        try {
 
+            map.fitBounds(
+                layer.getBounds(),
+                {
+                    padding: [20, 20]
+                }
+            );
 
-        /*
-           Enable click selection.
-        */
+        } catch (error) {
 
-        map.on(
-            "click",
-            handleMapClick
-        );
+            console.log(
+                "Could not fit Western Province bounds."
+            );
 
-
-        /*
-           Load other GIS layers.
-        */
-
-        loadGISLayers();
-
-
-        /*
-           Load Google Form reports.
-        */
-
-        loadReports();
+        }
 
     })
 
@@ -279,767 +346,31 @@ fetch("data/western_province.geojson")
 
         console.error(error);
 
-        showStatus(
-            "Error loading Western Province layer."
-        );
-
     });
 
 
 /* =========================================================
-   10. WESTERN PROVINCE POPUP
-   ========================================================= */
+   10. GENERIC GEOJSON LOADER
+========================================================= */
 
-function westernFeaturePopup(
-    feature,
-    layer
+function loadGeoJSON(
+
+    url,
+
+    targetLayer,
+
+    options
+
 ) {
 
-    const province =
-        feature.properties?.ADM1_EN ||
-        "Western Province";
-
-
-    const country =
-        feature.properties?.ADM0_EN ||
-        "Sri Lanka";
-
-
-    layer.bindPopup(
-
-        `
-        <div style="
-            min-width:200px;
-            font-family:Arial;
-        ">
-
-            <h3 style="
-                margin:0 0 8px;
-                color:#333;
-            ">
-                🟥 ${province}
-            </h3>
-
-            <b>Province:</b>
-            ${province}
-
-            <br>
-
-            <b>Country:</b>
-            ${country}
-
-        </div>
-        `
-
-    );
-
-}
-
-
-/* =========================================================
-   11. MAP CLICK
-   ========================================================= */
-
-function handleMapClick(e) {
-
-    if (!westernProvince) {
-
-        return;
-    }
-
-
-    const point =
-        turf.point([
-            e.latlng.lng,
-            e.latlng.lat
-        ]);
-
-
-    /*
-       Check whether clicked location
-       is inside Western Province.
-    */
-
-    let inside = false;
-
-
-    westernProvince.features.forEach(
-        feature => {
-
-            try {
-
-                if (
-                    turf.booleanPointInPolygon(
-                        point,
-                        feature
-                    )
-                ) {
-
-                    inside = true;
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Boundary check error:",
-                    error
-                );
-
-            }
-
-        }
-    );
-
-
-    if (!inside) {
-
-        alert(
-            "Please select a location inside Western Province."
-        );
-
-        return;
-    }
-
-
-    selectReportingLocation(
-        e.latlng.lat,
-        e.latlng.lng,
-        "Selected location"
-    );
-
-}
-
-
-/* =========================================================
-   12. SELECT REPORT LOCATION
-   ========================================================= */
-
-function selectReportingLocation(
-    lat,
-    lng,
-    label
-) {
-
-    selectedLat = lat;
-
-    selectedLng = lng;
-
-
-    /*
-       Remove old selected marker.
-    */
-
-    if (selectedMarker) {
-
-        map.removeLayer(
-            selectedMarker
-        );
-
-    }
-
-
-    /*
-       Create new selected marker.
-    */
-
-    const selectedIcon =
-        L.divIcon({
-
-            className: "",
-
-            html:
-                '<div class="selected-marker"></div>',
-
-            iconSize: [22, 22],
-
-            iconAnchor: [11, 11],
-
-            popupAnchor: [0, -11]
-
-        });
-
-
-    selectedMarker =
-        L.marker(
-            [lat, lng],
-            {
-                icon: selectedIcon
-            }
-        ).addTo(map);
-
-
-    selectedMarker.bindPopup(
-
-        `
-        <div style="font-family:Arial">
-
-            <b>📍 ${label}</b>
-
-            <br><br>
-
-            <b>Latitude:</b>
-            ${lat.toFixed(6)}
-
-            <br>
-
-            <b>Longitude:</b>
-            ${lng.toFixed(6)}
-
-            <br><br>
-
-            Click
-            <b>Report an Issue</b>
-            to submit a complaint.
-
-        </div>
-        `
-
-    ).openPopup();
-
-
-    /*
-       Update location panel.
-    */
-
-    document
-        .getElementById(
-            "selectedCoordinates"
-        )
-        .innerHTML =
-
-        `
-        Latitude:
-        <b>${lat.toFixed(6)}</b>
-        <br>
-        Longitude:
-        <b>${lng.toFixed(6)}</b>
-        `;
-
-
-    document
-        .getElementById(
-            "selectedLocation"
-        )
-        .classList.remove(
-            "hidden"
-        );
-
-
-    document
-        .getElementById(
-            "locationMessage"
-        )
-        .innerHTML =
-        "📍 Location selected. Click <b>Report an Issue</b> to continue.";
-
-
-    /*
-       Zoom to selected location.
-    */
-
-    map.setView(
-        [lat, lng],
-        Math.max(
-            map.getZoom(),
-            14
-        )
-    );
-
-}
-
-
-/* =========================================================
-   13. MY LOCATION BUTTON
-   ========================================================= */
-
-document
-    .getElementById(
-        "locationBtn"
-    )
-    .addEventListener(
-        "click",
-        getCurrentLocation
-    );
-
-
-function getCurrentLocation() {
-
-    if (!navigator.geolocation) {
-
-        alert(
-            "Geolocation is not supported by this browser."
-        );
-
-        return;
-    }
-
-
-    document
-        .getElementById(
-            "locationMessage"
-        )
-        .innerHTML =
-        "📍 Getting your current location...";
-
-
-    navigator.geolocation.getCurrentPosition(
-
-        position => {
-
-            const lat =
-                position.coords.latitude;
-
-            const lng =
-                position.coords.longitude;
-
-
-            /*
-               Remove old current location marker.
-            */
-
-            if (currentLocationMarker) {
-
-                map.removeLayer(
-                    currentLocationMarker
-                );
-
-            }
-
-
-            const currentIcon =
-                L.divIcon({
-
-                    className: "",
-
-                    html:
-                        '<div class="current-location-marker"></div>',
-
-                    iconSize: [18, 18],
-
-                    iconAnchor: [9, 9]
-
-                });
-
-
-            currentLocationMarker =
-                L.marker(
-                    [lat, lng],
-                    {
-                        icon: currentIcon
-                    }
-                ).addTo(map);
-
-
-            currentLocationMarker.bindPopup(
-                `
-                <b>📍 Your Current Location</b>
-                <br><br>
-                Latitude:
-                ${lat.toFixed(6)}
-                <br>
-                Longitude:
-                ${lng.toFixed(6)}
-                `
-            );
-
-
-            /*
-               Check if current location is inside
-               Western Province.
-            */
-
-            let inside = false;
-
-
-            if (westernProvince) {
-
-                const point =
-                    turf.point([
-                        lng,
-                        lat
-                    ]);
-
-
-                westernProvince.features.forEach(
-                    feature => {
-
-                        if (
-                            turf.booleanPointInPolygon(
-                                point,
-                                feature
-                            )
-                        ) {
-
-                            inside = true;
-
-                        }
-
-                    }
-                );
-
-            }
-
-
-            if (inside) {
-
-                selectReportingLocation(
-                    lat,
-                    lng,
-                    "Your current location"
-                );
-
-                currentLocationMarker
-                    .openPopup();
-
-                document
-                    .getElementById(
-                        "locationMessage"
-                    )
-                    .innerHTML =
-                    "📍 Your current location has been selected. You can report this location or click another location on the map.";
-
-            } else {
-
-                map.setView(
-                    [lat, lng],
-                    15
-                );
-
-                document
-                    .getElementById(
-                        "locationMessage"
-                    )
-                    .innerHTML =
-                    "⚠️ Your current location is outside Western Province. Click a location inside the red boundary to report.";
-
-            }
-
-        },
-
-        error => {
-
-            console.error(error);
-
-            document
-                .getElementById(
-                    "locationMessage"
-                )
-                .innerHTML =
-                "⚠️ Location permission was not provided.";
-
-            alert(
-                "Please allow location access in your browser."
-            );
-
-        },
-
-        {
-
-            enableHighAccuracy: true,
-
-            timeout: 15000,
-
-            maximumAge: 0
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   14. REPORT BUTTON
-   ========================================================= */
-
-document
-    .getElementById(
-        "reportBtn"
-    )
-    .addEventListener(
-        "click",
-        openReportForm
-    );
-
-
-function openReportForm() {
-
-    /*
-       User must select a location.
-    */
-
-    if (
-        selectedLat === null ||
-        selectedLng === null
-    ) {
-
-        alert(
-            "Please click a location inside Western Province first."
-        );
-
-        return;
-    }
-
-
-    /*
-       Current date.
-    */
-
-    const today =
-        new Date();
-
-
-    const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(2, "0");
-
-
-    const day =
-        String(
-            today.getDate()
-        ).padStart(2, "0");
-
-
-    const year =
-        today.getFullYear();
-
-
-    /*
-       Build prefilled Google Form URL.
-    */
-
-    const formURL =
-        GOOGLE_FORM_URL +
-
-        "?usp=pp_url" +
-
-        "&" +
-        FORM_ENTRIES.longitude +
-        "=" +
-        encodeURIComponent(
-            selectedLng.toFixed(6)
-        ) +
-
-        "&" +
-        FORM_ENTRIES.latitude +
-        "=" +
-        encodeURIComponent(
-            selectedLat.toFixed(6)
-        ) +
-
-        "&" +
-        FORM_ENTRIES.date +
-        "=" +
-        encodeURIComponent(
-            month +
-            "/" +
-            day +
-            "/" +
-            year
-        );
-
-
-    /*
-       Open form in new tab.
-    */
-
-    window.open(
-        formURL,
-        "_blank"
-    );
-
-}
-
-
-/* =========================================================
-   15. LOAD GIS LAYERS
-   ========================================================= */
-
-function loadGISLayers() {
-
-
-    /*
-       ROAD NETWORK
-       DEFAULT = OFF
-    */
-
-    loadGeoJSONLayer(
-        "data/roads.geojson",
-
-        "🛣️ Roads",
-
-        {
-
-            color: "#555",
-
-            weight: 2,
-
-            opacity: 0.8
-
-        },
-
-        false
-    );
-
-
-    /*
-       TRAFFIC LIGHTS
-    */
-
-    loadGeoJSONLayer(
-        "data/traffic_lights.geojson",
-
-        "🚦 Traffic Lights",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       SCHOOLS
-    */
-
-    loadGeoJSONLayer(
-        "data/schools.geojson",
-
-        "🏫 Schools",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       RAILWAY STATIONS
-    */
-
-    loadGeoJSONLayer(
-        "data/railway_stations.geojson",
-
-        "🚉 Railway Stations",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       RAILWAY
-    */
-
-    loadGeoJSONLayer(
-        "data/railway.geojson",
-
-        "🚆 Railway",
-
-        {
-
-            color: "#7b2cbf",
-
-            weight: 3,
-
-            opacity: 0.8
-
-        },
-
-        true
-    );
-
-
-    /*
-       PARKING
-    */
-
-    loadGeoJSONLayer(
-        "data/parking.geojson",
-
-        "🅿️ Parking",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       HOSPITALS
-    */
-
-    loadGeoJSONLayer(
-        "data/hospitals.geojson",
-
-        "🏥 Hospitals",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       BUS STOPS
-    */
-
-    loadGeoJSONLayer(
-        "data/busstops.geojson",
-
-        "🚌 Bus Stops",
-
-        null,
-
-        true
-    );
-
-
-    /*
-       PEDESTRIAN CROSSINGS
-    */
-
-    loadGeoJSONLayer(
-        "data/pedestrian_crossings.geojson",
-
-        "🚸 Pedestrian Crossings",
-
-        {
-
-            color: "#ff9800",
-
-            weight: 4
-
-        },
-
-        true
-    );
-
-}
-
-
-/* =========================================================
-   16. GENERIC GEOJSON LOADER
-   ========================================================= */
-
-function loadGeoJSONLayer(
-    file,
-    layerName,
-    customStyle,
-    defaultVisible
-) {
-
-    fetch(file)
+    fetch(url)
 
         .then(response => {
 
             if (!response.ok) {
 
                 throw new Error(
-                    file +
-                    " not found."
+                    "Could not load " + url
                 );
 
             }
@@ -1053,53 +384,16 @@ function loadGeoJSONLayer(
             const layer =
                 L.geoJSON(
                     data,
-                    {
-
-                        style:
-                            customStyle ||
-                            defaultLineStyle,
-
-                        pointToLayer:
-                            createPointMarker,
-
-                        onEachFeature:
-                            genericFeaturePopup
-
-                    }
+                    options
                 );
 
-
-            /*
-               Add to map only when
-               defaultVisible = true.
-            */
-
-            if (defaultVisible) {
-
-                layer.addTo(map);
-
-            }
-
-
-            overlayMaps[layerName] =
-                layer;
-
-
-            /*
-               Recreate layer control
-               after loading.
-            */
-
-            updateLayerControl();
+            targetLayer.addLayer(layer);
 
         })
 
         .catch(error => {
 
-            console.warn(
-                "Layer not loaded:",
-                file
-            );
+            console.error(error);
 
         });
 
@@ -1107,301 +401,856 @@ function loadGeoJSONLayer(
 
 
 /* =========================================================
-   17. DEFAULT LINE STYLE
-   ========================================================= */
+   11. ROADS
+   DEFAULT OFF
+========================================================= */
 
-function defaultLineStyle() {
+loadGeoJSON(
 
-    return {
+    files.roads,
 
-        color: "#3388ff",
+    roadsLayer,
 
-        weight: 2,
+    {
 
-        opacity: 0.8
+        style: {
 
-    };
+            color: "#555555",
 
-}
+            weight: 2,
+
+            opacity: 0.75
+
+        },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
+
+    }
+
+);
 
 
 /* =========================================================
-   18. POINT MARKER
-   ========================================================= */
+   12. RAILWAY
+========================================================= */
 
-function createPointMarker(
-    feature,
-    latlng
-) {
+loadGeoJSON(
 
-    const properties =
-        feature.properties || {};
+    files.railway,
 
+    railwayLayer,
 
-    /*
-       Determine layer type from
-       common OSM attributes.
-    */
+    {
 
-    let icon =
-        "📍";
+        style: {
 
+            color: "#7b2cbf",
 
-    const text =
-        JSON.stringify(
-            properties
-        ).toLowerCase();
+            weight: 3,
 
+            opacity: 0.9
 
-    if (
-        text.includes("school")
-    ) {
+        },
 
-        icon = "🏫";
+        onEachFeature:
 
-    }
+            function (
+                feature,
+                layer
+            ) {
 
-    else if (
-        text.includes("hospital")
-    ) {
+                layer.bindPopup(
+                    createPopup(feature)
+                );
 
-        icon = "🏥";
+            }
 
     }
 
-    else if (
-        text.includes("bus")
-    ) {
+);
 
-        icon = "🚌";
+
+/* =========================================================
+   13. RAILWAY STATIONS
+========================================================= */
+
+loadGeoJSON(
+
+    files.railwayStations,
+
+    railwayStationsLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#6f42c1",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
 
     }
 
-    else if (
-        text.includes("rail")
-    ) {
+);
 
-        icon = "🚉";
+
+/* =========================================================
+   14. BUS STOPS
+========================================================= */
+
+loadGeoJSON(
+
+    files.busStops,
+
+    busStopsLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#1d70a2",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
 
     }
 
-    else if (
-        text.includes("parking")
-    ) {
+);
 
-        icon = "🅿️";
+
+/* =========================================================
+   15. SCHOOLS
+========================================================= */
+
+loadGeoJSON(
+
+    files.schools,
+
+    schoolsLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#f4a261",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
 
     }
 
-    else if (
-        text.includes("traffic")
-    ) {
+);
 
-        icon = "🚦";
+
+/* =========================================================
+   16. HOSPITALS
+========================================================= */
+
+loadGeoJSON(
+
+    files.hospitals,
+
+    hospitalsLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#e63946",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
 
     }
 
-    else if (
-        text.includes("cross")
-    ) {
+);
 
-        icon = "🚸";
+
+/* =========================================================
+   17. PARKING
+========================================================= */
+
+loadGeoJSON(
+
+    files.parking,
+
+    parkingLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#264653",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
 
     }
 
+);
 
-    return L.marker(
-        latlng,
-        {
 
-            icon:
-                L.divIcon({
+/* =========================================================
+   18. TRAFFIC LIGHTS
+========================================================= */
 
-                    className:
-                        "custom-gis-marker",
+loadGeoJSON(
 
-                    html:
-                        `
-                        <div style="
-                            background:white;
-                            border:1px solid #777;
-                            border-radius:50%;
-                            width:25px;
-                            height:25px;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            box-shadow:0 2px 5px rgba(0,0,0,.25);
-                            font-size:14px;
-                        ">
-                            ${icon}
-                        </div>
-                        `,
+    files.trafficLights,
 
-                    iconSize:
-                        [25,25],
+    trafficLightsLayer,
 
-                    iconAnchor:
-                        [12,12]
+    {
 
-                })
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#ff0000",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
+
+    }
+
+);
+
+
+/* =========================================================
+   19. PEDESTRIAN CROSSINGS
+========================================================= */
+
+loadGeoJSON(
+
+    files.pedestrianCrossings,
+
+    pedestrianCrossingsLayer,
+
+    {
+
+        pointToLayer:
+
+            function (
+                feature,
+                latlng
+            ) {
+
+                return L.circleMarker(
+
+                    latlng,
+
+                    {
+
+                        radius: 6,
+
+                        fillColor: "#ff69b4",
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                );
+
+            },
+
+        onEachFeature:
+
+            function (
+                feature,
+                layer
+            ) {
+
+                layer.bindPopup(
+                    createPopup(feature)
+                );
+
+            }
+
+    }
+
+);
+
+
+/* =========================================================
+   20. LAYER CONTROL
+========================================================= */
+
+const baseMaps = {
+
+    "🗺️ OpenStreetMap": osm,
+
+    "🛰️ Satellite": satellite
+
+};
+
+
+const overlayMaps = {
+
+    "🟥 Western Province": westernProvinceLayer,
+
+    "🛣️ Roads": roadsLayer,
+
+    "🚆 Railway": railwayLayer,
+
+    "🚉 Railway Stations": railwayStationsLayer,
+
+    "🚌 Bus Stops": busStopsLayer,
+
+    "🏫 Schools": schoolsLayer,
+
+    "🏥 Hospitals": hospitalsLayer,
+
+    "🅿️ Parking": parkingLayer,
+
+    "🚦 Traffic Lights": trafficLightsLayer,
+
+    "🚶 Pedestrian Crossings":
+        pedestrianCrossingsLayer,
+
+    "🚨 Safety Complaints":
+        complaintsLayer
+
+};
+
+
+L.control.layers(
+
+    baseMaps,
+
+    overlayMaps,
+
+    {
+
+        collapsed: false,
+
+        position: "topright"
+
+    }
+
+).addTo(map);
+
+
+/* =========================================================
+   21. CURRENT LOCATION
+========================================================= */
+
+let currentLocationMarker =
+    null;
+
+let selectedReportLocation =
+    null;
+
+
+document
+    .getElementById("locationBtn")
+    .addEventListener(
+        "click",
+        function () {
+
+            if (!navigator.geolocation) {
+
+                alert(
+                    "Geolocation is not supported by your browser."
+                );
+
+                return;
+
+            }
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                function (position) {
+
+                    const lat =
+                        position.coords.latitude;
+
+                    const lng =
+                        position.coords.longitude;
+
+
+                    selectedReportLocation = {
+
+                        lat: lat,
+
+                        lng: lng
+
+                    };
+
+
+                    /* Remove old location */
+
+                    if (
+                        currentLocationMarker
+                    ) {
+
+                        map.removeLayer(
+                            currentLocationMarker
+                        );
+
+                    }
+
+
+                    /* Add new marker */
+
+                    currentLocationMarker =
+                        L.marker(
+                            [lat, lng]
+                        )
+                        .addTo(map);
+
+
+                    currentLocationMarker
+                        .bindPopup(
+                            `
+                            <b>📍 Your Current Location</b>
+                            <br><br>
+                            Latitude:
+                            ${lat.toFixed(6)}
+                            <br>
+                            Longitude:
+                            ${lng.toFixed(6)}
+                            `
+                        )
+                        .openPopup();
+
+
+                    map.setView(
+
+                        [lat, lng],
+
+                        16
+
+                    );
+
+
+                    updateLocationInfo(
+
+                        lat,
+
+                        lng
+
+                    );
+
+                },
+
+
+                function (error) {
+
+                    alert(
+                        "Unable to get your location. Please allow location access in your browser."
+                    );
+
+                    console.error(error);
+
+                },
+
+                {
+
+                    enableHighAccuracy: true,
+
+                    timeout: 10000,
+
+                    maximumAge: 0
+
+                }
+
+            );
 
         }
     );
 
-}
-
 
 /* =========================================================
-   19. GENERIC FEATURE POPUP
-   ========================================================= */
+   22. CLICK ANYWHERE TO SELECT REPORT LOCATION
+========================================================= */
 
-function genericFeaturePopup(
-    feature,
-    layer
-) {
+map.on(
 
-    const properties =
-        feature.properties || {};
+    "click",
 
+    function (event) {
 
-    const keys =
-        Object.keys(
-            properties
-        );
+        const lat =
+            event.latlng.lat;
+
+        const lng =
+            event.latlng.lng;
 
 
-    let html =
-        `
-        <div style="
-            max-width:300px;
-            font-family:Arial;
-        ">
+        /* Save selected location */
 
-        <h3 style="
-            margin:0 0 10px;
-            font-size:16px;
-        ">
-            📍 Location Information
-        </h3>
-        `;
+        selectedReportLocation = {
+
+            lat: lat,
+
+            lng: lng
+
+        };
 
 
-    keys
-        .slice(0, 12)
-        .forEach(
-            key => {
+        updateLocationInfo(
 
-                const value =
-                    properties[key];
+            lat,
 
+            lng
 
-                if (
-                    value !== null &&
-                    value !== undefined &&
-                    value !== ""
-                ) {
-
-                    html +=
-                        `
-                        <div style="
-                            margin:4px 0;
-                            font-size:12px;
-                        ">
-                            <b>
-                                ${formatFieldName(key)}:
-                            </b>
-                            ${value}
-                        </div>
-                        `;
-
-                }
-
-            }
-        );
-
-
-    html += "</div>";
-
-
-    layer.bindPopup(
-        html
-    );
-
-}
-
-
-/* =========================================================
-   20. FORMAT FIELD NAME
-   ========================================================= */
-
-function formatFieldName(
-    field
-) {
-
-    return field
-
-        .replace(
-            /_/g,
-            " "
-        )
-
-        .replace(
-            /\b\w/g,
-            char =>
-                char.toUpperCase()
-        );
-
-}
-
-
-/* =========================================================
-   21. UPDATE LAYER CONTROL
-   ========================================================= */
-
-let layerControl;
-
-
-function updateLayerControl() {
-
-    if (layerControl) {
-
-        map.removeControl(
-            layerControl
         );
 
     }
 
+);
 
-    layerControl =
-        L.control.layers(
-            baseMaps,
-            overlayMaps,
-            {
 
-                collapsed: false,
+/* =========================================================
+   23. UPDATE LOCATION DISPLAY
+========================================================= */
 
-                position: "topright"
+function updateLocationInfo(
 
-            }
-        ).addTo(map);
+    lat,
+
+    lng
+
+) {
+
+    const locationInfo =
+        document.getElementById(
+            "locationInfo"
+        );
+
+
+    locationInfo.innerHTML =
+
+        `📌 Selected location — 
+        ${lat.toFixed(6)}, 
+        ${lng.toFixed(6)}`;
 
 }
 
 
 /* =========================================================
-   22. LOAD GOOGLE SHEET REPORTS
-   ========================================================= */
+   24. REPORT BUTTON
+========================================================= */
 
-function loadReports() {
+document
+    .getElementById("reportBtn")
+    .addEventListener(
+        "click",
+        function () {
 
-    showStatus(
-        "Loading public reports..."
+            if (
+                !selectedReportLocation
+            ) {
+
+                alert(
+                    "Please click the location you want to report on the map first."
+                );
+
+                return;
+
+            }
+
+
+            const lat =
+                selectedReportLocation.lat;
+
+            const lng =
+                selectedReportLocation.lng;
+
+
+            /*
+               Google Form pre-filled URL
+
+               Latitude:
+               entry.1288249379
+
+               Longitude:
+               entry.756715849
+            */
+
+            const formURL =
+
+                GOOGLE_FORM_URL +
+
+                "?usp=pp_url" +
+
+                "&" +
+
+                LATITUDE_ENTRY +
+
+                "=" +
+
+                encodeURIComponent(
+                    lat.toFixed(6)
+                ) +
+
+                "&" +
+
+                LONGITUDE_ENTRY +
+
+                "=" +
+
+                encodeURIComponent(
+                    lng.toFixed(6)
+                );
+
+
+            /*
+               Open Google Form in new tab.
+            */
+
+            window.open(
+
+                formURL,
+
+                "_blank"
+
+            );
+
+        }
+
     );
 
 
+/* =========================================================
+   25. LOAD GOOGLE SHEET REPORTS
+========================================================= */
+
+loadReports();
+
+
+/* =========================================================
+   26. LOAD REPORT DATA
+========================================================= */
+
+function loadReports() {
+
     fetch(
-        SHEET_URL
+        SHEET_CSV_URL
     )
 
         .then(response => {
@@ -1418,45 +1267,88 @@ function loadReports() {
 
         })
 
-        .then(text => {
+        .then(csvText => {
 
-            /*
-               Google returns:
-
-               google.visualization.Query.setResponse(...)
-            */
-
-            const jsonText =
-                text
-                    .replace(
-                        /^\s*google\.visualization\.Query\.setResponse\(/,
-                        ""
-                    )
-                    .replace(
-                        /\);\s*$/,
-                        ""
-                    );
+            const rows =
+                parseCSV(csvText);
 
 
-            const data =
-                JSON.parse(
-                    jsonText
+            if (
+                rows.length < 2
+            ) {
+
+                console.log(
+                    "No complaint reports found."
+                );
+
+                updateSummary([]);
+
+                return;
+
+            }
+
+
+            const headers =
+                rows[0].map(
+
+                    h =>
+                        normalizeHeader(h)
+
                 );
 
 
-            reports =
-                parseGoogleSheetData(
-                    data
+            const reports = [];
+
+
+            for (
+                let i = 1;
+                i < rows.length;
+                i++
+            ) {
+
+                const row =
+                    rows[i];
+
+
+                if (
+                    row.length === 0
+                ) {
+
+                    continue;
+
+                }
+
+
+                const report = {};
+
+
+                headers.forEach(
+
+                    function (
+                        header,
+                        index
+                    ) {
+
+                        report[header] =
+                            row[index] || "";
+
+                    }
+
                 );
 
 
-            displayReports();
+                reports.push(report);
 
-            updateDashboard();
+            }
 
-            showStatus(
-                reports.length +
-                " reports loaded"
+
+            displayReports(
+                reports
+            );
+
+
+            updateSummary(
+                reports
             );
 
         })
@@ -1464,14 +1356,21 @@ function loadReports() {
         .catch(error => {
 
             console.error(
-                "REPORT ERROR:",
+                "Report loading error:",
                 error
             );
 
+            document
+                .getElementById(
+                    "issueCounts"
+                )
+                .innerHTML =
 
-            showStatus(
-                "Unable to load reports. Check Google Sheet access."
-            );
+                `
+                <div class="loading">
+                    Reports unavailable
+                </div>
+                `;
 
         });
 
@@ -1479,202 +1378,47 @@ function loadReports() {
 
 
 /* =========================================================
-   23. PARSE GOOGLE SHEET DATA
-   ========================================================= */
+   27. NORMALIZE GOOGLE SHEET HEADERS
+========================================================= */
 
-function parseGoogleSheetData(
-    data
-) {
+function normalizeHeader(header) {
 
-    if (
-        !data ||
-        !data.table
-    ) {
-
-        return [];
-
-    }
-
-
-    const table =
-        data.table;
-
-
-    const columns =
-        table.cols
-            .map(
-                column =>
-                    column.label ||
-                    column.id ||
-                    ""
-            );
-
-
-    const rows =
-        table.rows || [];
-
-
-    const result = [];
-
-
-    rows.forEach(
-        row => {
-
-            const values =
-                row.c.map(
-                    cell => {
-
-                        if (
-                            cell === null
-                        ) {
-
-                            return "";
-
-                        }
-
-
-                        if (
-                            cell.v === null ||
-                            cell.v === undefined
-                        ) {
-
-                            return "";
-
-                        }
-
-
-                        return cell.v;
-
-                    }
-                );
-
-
-            const record = {};
-
-
-            columns.forEach(
-                (column, index) => {
-
-                    record[
-                        normalizeHeader(
-                            column
-                        )
-                    ] =
-                        values[index] ??
-                        "";
-
-                }
-            );
-
-
-            /*
-               Detect coordinates.
-            */
-
-            const latitude =
-                findValue(
-                    record,
-                    [
-                        "latitude",
-                        "lat",
-                        "y"
-                    ]
-                );
-
-
-            const longitude =
-                findValue(
-                    record,
-                    [
-                        "longitude",
-                        "long",
-                        "lng",
-                        "lon",
-                        "x"
-                    ]
-                );
-
-
-            if (
-                isValidCoordinate(
-                    latitude,
-                    longitude
-                )
-            ) {
-
-                record.__latitude =
-                    Number(latitude);
-
-                record.__longitude =
-                    Number(longitude);
-
-                result.push(
-                    record
-                );
-
-            }
-
-        }
-    );
-
-
-    return result;
-
-}
-
-
-/* =========================================================
-   24. NORMALIZE HEADER
-   ========================================================= */
-
-function normalizeHeader(
-    value
-) {
-
-    return String(value)
+    return String(header)
 
         .toLowerCase()
 
         .trim()
 
-        .replace(
-            /[^a-z0-9]/g,
-            ""
-        );
+        .replace(/\s+/g, " ")
+
+        .replace(/_/g, " ");
 
 }
 
 
 /* =========================================================
-   25. FIND VALUE
-   ========================================================= */
+   28. FIND FIELD
+========================================================= */
 
-function findValue(
-    record,
+function getField(
+    report,
     possibleNames
 ) {
 
     for (
-        const name
-        of possibleNames
+        const name of possibleNames
     ) {
 
-        const normalized =
-            normalizeHeader(
-                name
-            );
+        const key =
+            normalizeHeader(name);
 
 
         if (
-            Object.prototype.hasOwnProperty.call(
-                record,
-                normalized
-            )
+            report[key] !== undefined &&
+            report[key] !== ""
         ) {
 
-            return record[
-                normalized
-            ];
+            return report[key];
 
         }
 
@@ -1687,525 +1431,463 @@ function findValue(
 
 
 /* =========================================================
-   26. VALIDATE COORDINATE
-   ========================================================= */
+   29. DISPLAY REPORTS ON MAP
+========================================================= */
 
-function isValidCoordinate(
-    lat,
-    lng
+function displayReports(
+    reports
 ) {
 
-    const latitude =
-        Number(lat);
-
-    const longitude =
-        Number(lng);
-
-
-    return (
-
-        Number.isFinite(
-            latitude
-        ) &&
-
-        Number.isFinite(
-            longitude
-        ) &&
-
-        latitude >= -90 &&
-        latitude <= 90 &&
-
-        longitude >= -180 &&
-        longitude <= 180
-
-    );
-
-}
-
-
-/* =========================================================
-   27. DISPLAY REPORTS
-   ========================================================= */
-
-function displayReports() {
-
-    /*
-       Remove previous reports.
-    */
-
-    reportLayerGroup.clearLayers();
+    complaintsLayer.clearLayers();
 
 
     reports.forEach(
-        report => {
 
-            const severity =
-                getReportField(
+        function (report) {
+
+            const latitude =
+                getField(
                     report,
                     [
-                        "severity",
-                        "severitylevel",
-                        "level"
+                        "latitude",
+                        "lat"
                     ]
                 );
+
+
+            const longitude =
+                getField(
+                    report,
+                    [
+                        "longitude",
+                        "lng",
+                        "lon"
+                    ]
+                );
+
+
+            if (
+                latitude === "" ||
+                longitude === ""
+            ) {
+
+                return;
+
+            }
+
+
+            const lat =
+                parseCoordinate(
+                    latitude
+                );
+
+
+            const lng =
+                parseCoordinate(
+                    longitude
+                );
+
+
+            if (
+                isNaN(lat) ||
+                isNaN(lng)
+            ) {
+
+                return;
+
+            }
 
 
             const issue =
-                getReportField(
+                getField(
                     report,
                     [
-                        "issuetype",
+                        "issue type",
                         "issue",
-                        "problem",
-                        "category"
+                        "problem type"
                     ]
                 );
 
 
-            const description =
-                getReportField(
+            const severity =
+                getField(
                     report,
                     [
-                        "descriptionoftheproblem",
-                        "description",
-                        "problem"
+                        "severity level",
+                        "severity"
                     ]
                 );
 
 
             const date =
-                getReportField(
+                getField(
                     report,
                     [
-                        "dateobserved",
+                        "date observed",
                         "date",
                         "timestamp"
                     ]
                 );
 
 
-            const icon =
-                createReportIcon(
+            const description =
+                getField(
+                    report,
+                    [
+                        "description of the problem",
+                        "description",
+                        "problem description"
+                    ]
+                );
+
+
+            const photo =
+                getField(
+                    report,
+                    [
+                        "evidence (upload a photo)",
+                        "evidence",
+                        "photo",
+                        "image"
+                    ]
+                );
+
+
+            const markerColor =
+                getSeverityColor(
                     severity
                 );
 
 
             const marker =
-                L.marker(
-                    [
-                        report.__latitude,
-                        report.__longitude
-                    ],
+                L.circleMarker(
+
+                    [lat, lng],
+
                     {
-                        icon: icon
+
+                        radius: 9,
+
+                        fillColor:
+                            markerColor,
+
+                        color: "#ffffff",
+
+                        weight: 2,
+
+                        fillOpacity: 0.9
+
                     }
+
                 );
 
 
+            let popup =
+
+                `
+                <div style="
+                    min-width:230px;
+                    max-width:300px;
+                ">
+
+                    <h3 style="
+                        margin-top:0;
+                        margin-bottom:10px;
+                    ">
+                        🚨 Safety Report
+                    </h3>
+
+                    <b>Issue:</b>
+                    ${escapeHTML(issue || "Not specified")}
+                    <br>
+
+                    <b>Severity:</b>
+                    ${escapeHTML(severity || "Not specified")}
+                    <br>
+
+                    <b>Date:</b>
+                    ${escapeHTML(date || "Not specified")}
+                    <br><br>
+
+                    <b>Description:</b>
+                    <br>
+
+                    ${escapeHTML(
+                        description ||
+                        "No description provided."
+                    )}
+                `;
+
+
+            if (
+                photo &&
+                String(photo).startsWith("http")
+            ) {
+
+                popup +=
+
+                    `
+                    <br><br>
+
+                    <a
+                        href="${photo}"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        📷 View Evidence
+                    </a>
+                    `;
+
+            }
+
+
+            popup +=
+                "</div>";
+
+
             marker.bindPopup(
-
-                createReportPopup(
-                    report,
-                    issue,
-                    severity,
-                    description,
-                    date
-                )
-
+                popup
             );
 
 
-            reportLayerGroup.addLayer(
-                marker
-            );
+            complaintsLayer
+                .addLayer(marker);
 
         }
+
     );
+
+
+    /*
+       Automatically show complaints
+       on the map.
+    */
+
+    if (
+        complaintsLayer
+            .getLayers()
+            .length > 0
+    ) {
+
+        complaintsLayer
+            .addTo(map);
+
+    }
 
 }
 
 
 /* =========================================================
-   28. REPORT ICON
-   ========================================================= */
+   30. SEVERITY COLOR
+========================================================= */
 
-function createReportIcon(
+function getSeverityColor(
     severity
 ) {
 
-    const normalized =
-        normalizeSeverity(
-            severity
-        );
-
-
-    let color =
-        "#2e8b57";
-
-
-    if (
-        normalized === "medium"
-    ) {
-
-        color =
-            "#f57c00";
-
-    }
-
-
-    if (
-        normalized === "severe"
-    ) {
-
-        color =
-            "#d62828";
-
-    }
-
-
-    return L.divIcon({
-
-        className:
-            "report-marker",
-
-        html:
-            `
-            <div style="
-                width:22px;
-                height:22px;
-                background:${color};
-                border:3px solid white;
-                border-radius:50%;
-                box-shadow:
-                    0 2px 7px rgba(0,0,0,.4);
-            ">
-            </div>
-            `,
-
-        iconSize:
-            [22,22],
-
-        iconAnchor:
-            [11,11],
-
-        popupAnchor:
-            [0,-11]
-
-    });
-
-}
-
-
-/* =========================================================
-   29. REPORT POPUP
-   ========================================================= */
-
-function createReportPopup(
-    report,
-    issue,
-    severity,
-    description,
-    date
-) {
-
-    const normalized =
-        normalizeSeverity(
-            severity
-        );
-
-
-    let severityClass =
-        "popup-low";
-
-
-    if (
-        normalized === "medium"
-    ) {
-
-        severityClass =
-            "popup-medium";
-
-    }
-
-
-    if (
-        normalized === "severe"
-    ) {
-
-        severityClass =
-            "popup-severe";
-
-    }
-
-
-    return `
-
-        <div class="report-popup">
-
-            <h3>
-                🚨 Pedestrian Safety Report
-            </h3>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Issue:
-                </span>
-
-                <span>
-                    ${escapeHTML(
-                        issue ||
-                        "Not provided"
-                    )}
-                </span>
-
-            </div>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Severity:
-                </span>
-
-                <span>
-
-                    <span class="
-                        popup-severity
-                        ${severityClass}
-                    ">
-
-                        ${escapeHTML(
-                            severity ||
-                            "Low"
-                        )}
-
-                    </span>
-
-                </span>
-
-            </div>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Description:
-                </span>
-
-                <span>
-                    ${escapeHTML(
-                        description ||
-                        "No description"
-                    )}
-                </span>
-
-            </div>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Date:
-                </span>
-
-                <span>
-                    ${escapeHTML(
-                        String(
-                            date ||
-                            "Not provided"
-                        )
-                    )}
-                </span>
-
-            </div>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Latitude:
-                </span>
-
-                <span>
-                    ${report.__latitude.toFixed(6)}
-                </span>
-
-            </div>
-
-
-            <div class="popup-row">
-
-                <span class="popup-label">
-                    Longitude:
-                </span>
-
-                <span>
-                    ${report.__longitude.toFixed(6)}
-                </span>
-
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-/* =========================================================
-   30. GET REPORT FIELD
-   ========================================================= */
-
-function getReportField(
-    record,
-    names
-) {
-
-    for (
-        const name
-        of names
-    ) {
-
-        const key =
-            normalizeHeader(
-                name
-            );
-
-
-        if (
-            Object.prototype.hasOwnProperty.call(
-                record,
-                key
-            )
-        ) {
-
-            return record[key];
-
-        }
-
-    }
-
-
-    return "";
-
-}
-
-
-/* =========================================================
-   31. NORMALIZE SEVERITY
-   ========================================================= */
-
-function normalizeSeverity(
-    value
-) {
-
-    const text =
-        String(
-            value || ""
-        )
+    const value =
+        String(severity)
             .toLowerCase()
             .trim();
 
 
     if (
-        text.includes("severe") ||
-        text.includes("high")
+        value.includes("severe") ||
+        value.includes("high")
     ) {
 
-        return "severe";
+        return "#d92d2d";
 
     }
 
 
     if (
-        text.includes("medium") ||
-        text.includes("moderate")
+        value.includes("medium")
     ) {
 
-        return "medium";
+        return "#ff8c00";
 
     }
 
 
-    return "low";
+    return "#2e8b57";
 
 }
 
 
 /* =========================================================
-   32. UPDATE DASHBOARD
-   ========================================================= */
+   31. UPDATE REPORT SUMMARY
+========================================================= */
 
-function updateDashboard() {
+function updateSummary(
+    reports
+) {
 
-    /*
-       Total reports.
-    */
-
-    document
-        .getElementById(
+    const totalReports =
+        document.getElementById(
             "totalReports"
-        )
-        .textContent =
+        );
+
+
+    totalReports.textContent =
         reports.length;
 
 
-    /*
-       Issue counts.
-    */
+    let low = 0;
+
+    let medium = 0;
+
+    let severe = 0;
+
 
     const issueCounts = {};
 
 
     reports.forEach(
-        report => {
 
-            const issue =
-                getReportField(
+        function (report) {
+
+            const severity =
+                getField(
                     report,
                     [
-                        "issuetype",
-                        "issue",
-                        "problem",
-                        "category"
+                        "severity level",
+                        "severity"
                     ]
-                ) ||
-                "Other";
+                )
+                .toLowerCase()
+                .trim();
 
 
-            issueCounts[issue] =
-                (
-                    issueCounts[issue] ||
-                    0
-                ) + 1;
+            if (
+                severity.includes("low")
+            ) {
+
+                low++;
+
+            }
+
+            else if (
+                severity.includes("medium")
+            ) {
+
+                medium++;
+
+            }
+
+            else if (
+                severity.includes("severe") ||
+                severity.includes("high")
+            ) {
+
+                severe++;
+
+            }
+
+
+            const issue =
+                getField(
+                    report,
+                    [
+                        "issue type",
+                        "issue",
+                        "problem type"
+                    ]
+                );
+
+
+            if (issue) {
+
+                issueCounts[issue] =
+                    (
+                        issueCounts[issue] ||
+                        0
+                    ) + 1;
+
+            }
 
         }
+
     );
 
 
-    const issueContainer =
+    document
+        .getElementById(
+            "lowCount"
+        )
+        .textContent = low;
+
+
+    document
+        .getElementById(
+            "mediumCount"
+        )
+        .textContent = medium;
+
+
+    document
+        .getElementById(
+            "severeCount"
+        )
+        .textContent = severe;
+
+
+    displayIssueCounts(
+        issueCounts
+    );
+
+}
+
+
+/* =========================================================
+   32. DISPLAY ISSUE COUNTS
+========================================================= */
+
+function displayIssueCounts(
+    issueCounts
+) {
+
+    const container =
         document.getElementById(
             "issueCounts"
         );
 
 
-    issueContainer.innerHTML = "";
+    container.innerHTML = "";
 
 
-    const sortedIssues =
+    const issues =
         Object.entries(
             issueCounts
         )
-            .sort(
-                (a, b) =>
-                    b[1] - a[1]
-            );
+        .sort(
+            (a, b) =>
+                b[1] - a[1]
+        );
 
 
-    sortedIssues.forEach(
-        ([issue, count]) => {
+    if (
+        issues.length === 0
+    ) {
+
+        container.innerHTML =
+
+            `
+            <div class="loading">
+                No reports yet
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    issues.forEach(
+
+        function (
+            [issue, count]
+        ) {
 
             const row =
                 document.createElement(
@@ -2217,145 +1899,100 @@ function updateDashboard() {
                 "issue-row";
 
 
-            row.innerHTML = `
-
-                <div class="issue-name">
-
-                    <span class="issue-icon">
-                        ${getIssueIcon(issue)}
-                    </span>
-
-                    <span class="issue-text">
-                        ${escapeHTML(issue)}
-                    </span>
-
-                </div>
-
-                <span class="issue-number">
-                    ${count}
-                </span>
-
-            `;
+            const left =
+                document.createElement(
+                    "div"
+                );
 
 
-            issueContainer.appendChild(
+            left.className =
+                "issue-left";
+
+
+            const icon =
+                document.createElement(
+                    "span"
+                );
+
+
+            icon.className =
+                "issue-icon";
+
+
+            icon.textContent =
+                getIssueIcon(issue);
+
+
+            const name =
+                document.createElement(
+                    "span"
+                );
+
+
+            name.className =
+                "issue-name";
+
+
+            name.textContent =
+                issue;
+
+
+            const number =
+                document.createElement(
+                    "span"
+                );
+
+
+            number.className =
+                "issue-number";
+
+
+            number.textContent =
+                count;
+
+
+            left.appendChild(
+                icon
+            );
+
+
+            left.appendChild(
+                name
+            );
+
+
+            row.appendChild(
+                left
+            );
+
+
+            row.appendChild(
+                number
+            );
+
+
+            container.appendChild(
                 row
             );
 
         }
+
     );
-
-
-    if (
-        sortedIssues.length === 0
-    ) {
-
-        issueContainer.innerHTML =
-            `
-            <div style="
-                font-size:12px;
-                color:#777;
-            ">
-                No reports available.
-            </div>
-            `;
-
-    }
-
-
-    /*
-       Severity counts.
-    */
-
-    let low = 0;
-
-    let medium = 0;
-
-    let severe = 0;
-
-
-    reports.forEach(
-        report => {
-
-            const severity =
-                normalizeSeverity(
-                    getReportField(
-                        report,
-                        [
-                            "severity",
-                            "severitylevel",
-                            "level"
-                        ]
-                    )
-                );
-
-
-            if (
-                severity === "low"
-            ) {
-
-                low++;
-
-            }
-
-            else if (
-                severity === "medium"
-            ) {
-
-                medium++;
-
-            }
-
-            else if (
-                severity === "severe"
-            ) {
-
-                severe++;
-
-            }
-
-        }
-    );
-
-
-    document
-        .getElementById(
-            "lowCount"
-        )
-        .textContent =
-        low;
-
-
-    document
-        .getElementById(
-            "mediumCount"
-        )
-        .textContent =
-        medium;
-
-
-    document
-        .getElementById(
-            "severeCount"
-        )
-        .textContent =
-        severe;
 
 }
 
 
 /* =========================================================
-   33. ISSUE ICON
-   ========================================================= */
+   33. ISSUE ICONS
+========================================================= */
 
 function getIssueIcon(
     issue
 ) {
 
     const text =
-        String(
-            issue || ""
-        ).toLowerCase();
+        String(issue)
+            .toLowerCase();
 
 
     if (
@@ -2377,28 +2014,11 @@ function getIssueIcon(
 
 
     if (
-        text.includes("lighting")
+        text.includes("lighting") ||
+        text.includes("light")
     ) {
 
         return "💡";
-
-    }
-
-
-    if (
-        text.includes("parking")
-    ) {
-
-        return "🚗";
-
-    }
-
-
-    if (
-        text.includes("drain")
-    ) {
-
-        return "💧";
 
     }
 
@@ -2422,31 +2042,298 @@ function getIssueIcon(
 
 
     if (
-        text.includes("tree") ||
-        text.includes("vegetation")
+        text.includes("parking")
     ) {
 
-        return "🌳";
+        return "🚗";
 
     }
 
 
-    return "⚠️";
+    if (
+        text.includes("drain")
+    ) {
+
+        return "⚠️";
+
+    }
+
+
+    if (
+        text.includes("access")
+    ) {
+
+        return "♿";
+
+    }
+
+
+    return "📍";
 
 }
 
 
 /* =========================================================
-   34. ESCAPE HTML
-   ========================================================= */
+   34. PARSE CSV
+========================================================= */
+
+function parseCSV(
+    text
+) {
+
+    const rows = [];
+
+    let row = [];
+
+    let value = "";
+
+    let insideQuotes = false;
+
+
+    for (
+        let i = 0;
+        i < text.length;
+        i++
+    ) {
+
+        const character =
+            text[i];
+
+
+        const nextCharacter =
+            text[i + 1];
+
+
+        if (
+            character === '"' &&
+            insideQuotes &&
+            nextCharacter === '"'
+        ) {
+
+            value += '"';
+
+            i++;
+
+        }
+
+        else if (
+            character === '"'
+        ) {
+
+            insideQuotes =
+                !insideQuotes;
+
+        }
+
+        else if (
+            character === "," &&
+            !insideQuotes
+        ) {
+
+            row.push(
+                value
+            );
+
+            value = "";
+
+        }
+
+        else if (
+            (
+                character === "\n" ||
+                character === "\r"
+            ) &&
+            !insideQuotes
+        ) {
+
+            if (
+                character === "\r" &&
+                nextCharacter === "\n"
+            ) {
+
+                i++;
+
+            }
+
+
+            row.push(
+                value
+            );
+
+
+            if (
+                row.some(
+                    cell =>
+                        cell.trim() !== ""
+                )
+            ) {
+
+                rows.push(
+                    row
+                );
+
+            }
+
+
+            row = [];
+
+            value = "";
+
+        }
+
+        else {
+
+            value +=
+                character;
+
+        }
+
+    }
+
+
+    if (
+        value !== "" ||
+        row.length > 0
+    ) {
+
+        row.push(
+            value
+        );
+
+
+        rows.push(
+            row
+        );
+
+    }
+
+
+    return rows;
+
+}
+
+
+/* =========================================================
+   35. COORDINATE PARSER
+========================================================= */
+
+function parseCoordinate(
+    value
+) {
+
+    if (
+        typeof value === "number"
+    ) {
+
+        return value;
+
+    }
+
+
+    const text =
+        String(value)
+            .trim();
+
+
+    /*
+       Normal decimal coordinate
+    */
+
+    const decimal =
+        parseFloat(text);
+
+
+    if (
+        !isNaN(decimal) &&
+        !/[°'"]/.test(text)
+    ) {
+
+        return decimal;
+
+    }
+
+
+    /*
+       DMS coordinate
+       Example:
+       6°47'41.6"N
+       79°54'05.2"E
+    */
+
+    const match =
+        text.match(
+
+            /(\d+)[°:\s]+(\d+)[′':\s]+([\d.]+)[″"\s]*([NSEW])?/i
+
+        );
+
+
+    if (!match) {
+
+        return NaN;
+
+    }
+
+
+    const degrees =
+        parseFloat(
+            match[1]
+        );
+
+
+    const minutes =
+        parseFloat(
+            match[2]
+        );
+
+
+    const seconds =
+        parseFloat(
+            match[3]
+        );
+
+
+    let result =
+
+        degrees +
+
+        minutes / 60 +
+
+        seconds / 3600;
+
+
+    const direction =
+        match[4];
+
+
+    if (
+        direction &&
+        (
+            direction.toUpperCase() === "S" ||
+            direction.toUpperCase() === "W"
+        )
+    ) {
+
+        result =
+            -result;
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =========================================================
+   36. ESCAPE HTML
+========================================================= */
 
 function escapeHTML(
     value
 ) {
 
-    return String(
-        value
-    )
+    return String(value)
 
         .replace(
             /&/g,
@@ -2477,43 +2364,17 @@ function escapeHTML(
 
 
 /* =========================================================
-   35. STATUS
-   ========================================================= */
+   37. REFRESH REPORTS
+========================================================= */
 
-function showStatus(
-    message
-) {
+setInterval(
 
-    document
-        .getElementById(
-            "reportStatus"
-        )
-        .textContent =
-        message;
+    function () {
 
-}
+        loadReports();
 
+    },
 
-/* =========================================================
-   36. REFRESH REPORTS
-   ========================================================= */
+    60000
 
-document
-    .getElementById(
-        "refreshReports"
-    )
-    .addEventListener(
-        "click",
-        () => {
-
-            loadReports();
-
-        }
-    );
-
-
-/* =========================================================
-   37. INITIAL LAYER CONTROL
-   ========================================================= */
-
-updateLayerControl();
+);
