@@ -5,58 +5,50 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0">
 
     <title>SafeWalk - Western Province</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-    <!-- Leaflet MarkerCluster CSS -->
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-
-    <link rel="stylesheet"
-          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3Qe5m7q2kP2Xg4Rk9g4s4Q4p5c5c="
+        crossorigin="" />
 
     <!-- Your CSS -->
     <link rel="stylesheet"
-          href="css/style.css">
+        href="css/style.css">
 </head>
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
     <header class="top-header">
 
         <div class="brand">
 
-            <div class="brand-icon">
-                🚶
+            <div class="brand-title">
+                🚶 SafeWalk
             </div>
 
-            <div>
-                <h1>SafeWalk</h1>
-
-                <p>
-                    Public Pedestrian Safety & Complaint Web Map
-                </p>
+            <div class="brand-subtitle">
+                Public Pedestrian Safety & Complaint Web Map
             </div>
 
         </div>
 
-
         <div class="header-buttons">
 
             <button id="locationBtn"
-                    class="location-btn">
+                class="location-btn">
                 📍 My Location
             </button>
 
             <button id="reportBtn"
-                    class="report-btn">
+                class="report-btn">
                 🚨 Report an Issue
             </button>
 
@@ -65,67 +57,42 @@
     </header>
 
 
-    <!-- ================= MAP ================= -->
+    <!-- =====================================================
+         MAP
+    ====================================================== -->
 
-    <main id="map"></main>
-
-
-    <!-- ================= LOCATION MESSAGE ================= -->
-
-    <div id="locationMessage"
-         class="location-message">
-
-        📌 Click anywhere inside Western Province to select a reporting location.
-
-    </div>
+    <div id="map"></div>
 
 
-    <!-- ================= SELECTED LOCATION ================= -->
+    <!-- =====================================================
+         CURRENT LOCATION DISPLAY
+    ====================================================== -->
 
-    <div id="selectedLocation"
-         class="selected-location hidden">
+    <div id="locationInfo"
+        class="location-info">
 
-        <strong>Selected Report Location</strong>
-
-        <div id="selectedCoordinates">
-            No location selected
-        </div>
+        📌 Your current location
 
     </div>
 
 
-    <!-- ================= REPORT DASHBOARD ================= -->
+    <!-- =====================================================
+         SAFEWALK REPORT SUMMARY
+         MOVED TO BOTTOM-LEFT
+    ====================================================== -->
 
-    <div id="reportDashboard"
-         class="report-dashboard">
+    <div id="reportSummary"
+        class="report-summary">
 
-        <div class="dashboard-header">
-
-            <div>
-                <div class="dashboard-title">
-                    🚨 SafeWalk Reports
-                </div>
-
-                <div class="dashboard-subtitle">
-                    Public pedestrian safety complaints
-                </div>
-            </div>
-
-            <button id="refreshReports"
-                    class="refresh-btn"
-                    title="Refresh reports">
-                ↻
-            </button>
-
+        <div class="summary-header">
+            <span>🚨</span>
+            <strong>SafeWalk Reports</strong>
         </div>
 
-
-        <!-- TOTAL REPORTS -->
-
-        <div class="total-section">
+        <div class="summary-total">
 
             <div id="totalReports"
-                 class="total-number">
+                class="total-number">
                 0
             </div>
 
@@ -138,14 +105,19 @@
 
         <!-- ISSUE TYPES -->
 
-        <div class="dashboard-section">
+        <div class="summary-section">
 
             <h3>
                 Issue Types
             </h3>
 
             <div id="issueCounts"
-                 class="count-list">
+                class="issue-counts">
+
+                <div class="loading">
+                    Loading reports...
+                </div>
+
             </div>
 
         </div>
@@ -153,7 +125,7 @@
 
         <!-- SEVERITY -->
 
-        <div class="dashboard-section">
+        <div class="summary-section severity-section">
 
             <h3>
                 Severity
@@ -161,64 +133,56 @@
 
             <div class="severity-row">
 
-                <div class="severity-item">
-
+                <div class="severity-left">
                     <span class="severity-dot low"></span>
-
                     <span>Low</span>
-
-                    <strong id="lowCount">
-                        0
-                    </strong>
-
                 </div>
 
-
-                <div class="severity-item">
-
-                    <span class="severity-dot medium"></span>
-
-                    <span>Medium</span>
-
-                    <strong id="mediumCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="severity-item">
-
-                    <span class="severity-dot severe"></span>
-
-                    <span>Severe</span>
-
-                    <strong id="severeCount">
-                        0
-                    </strong>
-
-                </div>
+                <strong id="lowCount">
+                    0
+                </strong>
 
             </div>
 
-        </div>
+
+            <div class="severity-row">
+
+                <div class="severity-left">
+                    <span class="severity-dot medium"></span>
+                    <span>Medium</span>
+                </div>
+
+                <strong id="mediumCount">
+                    0
+                </strong>
+
+            </div>
 
 
-        <!-- STATUS -->
+            <div class="severity-row">
 
-        <div id="reportStatus"
-             class="report-status">
+                <div class="severity-left">
+                    <span class="severity-dot severe"></span>
+                    <span>Severe</span>
+                </div>
 
-            Loading reports...
+                <strong id="severeCount">
+                    0
+                </strong>
+
+            </div>
 
         </div>
 
     </div>
 
 
-    <!-- ================= MAP LEGEND ================= -->
+    <!-- =====================================================
+         SEVERITY LEGEND
+         ALIGNED WITH REPORT PANEL
+    ====================================================== -->
 
-    <div class="map-legend">
+    <div class="severity-legend">
 
         <div class="legend-title">
             Complaint Severity
@@ -232,6 +196,7 @@
 
         </div>
 
+
         <div class="legend-item">
 
             <span class="legend-symbol medium-symbol"></span>
@@ -239,6 +204,7 @@
             <span>Medium</span>
 
         </div>
+
 
         <div class="legend-item">
 
@@ -251,53 +217,44 @@
     </div>
 
 
-    <!-- ================= HELP BOX ================= -->
+    <!-- =====================================================
+         FORM MODAL
+    ====================================================== -->
 
-    <div class="help-box">
+    <div id="formModal"
+        class="form-modal">
 
-        <strong>How to report</strong>
+        <div class="form-container">
 
-        <ol>
+            <button id="closeForm"
+                class="close-form">
+                ×
+            </button>
 
-            <li>
-                Click your problem location on the map.
-            </li>
+            <iframe
+                id="googleFormFrame"
+                src=""
+                title="SafeWalk Complaint Form">
+            </iframe>
 
-            <li>
-                Click <b>Report an Issue</b>.
-            </li>
-
-            <li>
-                Complete the Google Form.
-            </li>
-
-            <li>
-                Submit your complaint.
-            </li>
-
-            <li>
-                Your report will appear on the map after refresh.
-            </li>
-
-        </ol>
+        </div>
 
     </div>
 
 
-    <!-- ================= LEAFLET JS ================= -->
+    <!-- =====================================================
+         LEAFLET JS
+    ====================================================== -->
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
-    <!-- Turf.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
-
-
-    <!-- Marker Cluster -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin="">
+    </script>
 
 
     <!-- Your JavaScript -->
+
     <script src="js/script.js"></script>
 
 </body>
