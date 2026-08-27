@@ -1,24 +1,28 @@
 // ================================================================
-// SAFEWALK - PUBLIC PEDESTRIAN SAFETY WEB MAP
-// Western Province, Sri Lanka
-// Leaflet + GeoJSON + Google Forms + Google Sheets
+// SAFEWALK
+// PUBLIC PEDESTRIAN SAFETY & COMPLAINT WEB MAP
+// WESTERN PROVINCE, SRI LANKA
 // ================================================================
 
 
 // ================================================================
-// 1. GOOGLE FORM SETTINGS
+// 1. GOOGLE FORM
 // ================================================================
 
 const FORM_VIEW_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSdgncnCOESnZJ2IJYGJAc-TssjL8kB_oAfr15CEbLBS63tLDQ/viewform";
 
-// Your actual Google Form entry IDs
-const FORM_ENTRY_LONGITUDE = "756715849";
-const FORM_ENTRY_LATITUDE  = "1288249379";
+
+// These are the Google Form entry IDs
+const FORM_ENTRY_LONGITUDE =
+    "756715849";
+
+const FORM_ENTRY_LATITUDE =
+    "1288249379";
 
 
 // ================================================================
-// 2. GOOGLE SHEET SETTINGS
+// 2. GOOGLE SHEET
 // ================================================================
 
 const GOOGLE_SHEET_ID =
@@ -32,130 +36,94 @@ const GOOGLE_SHEET_GID =
 // 3. MAP
 // ================================================================
 
-const map = L.map("map", {
-    zoomControl: true
-}).setView([6.9271, 79.8612], 9);
-
-
-// OpenStreetMap
-const osm = L.tileLayer(
-    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap contributors"
-    }
-).addTo(map);
-
-
-// Satellite
-const satellite = L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-        attribution: "Tiles © Esri"
-    }
-);
+const map =
+    L.map("map")
+        .setView(
+            [6.9271, 79.8612],
+            9
+        );
 
 
 // ================================================================
-// 4. GENERAL FUNCTIONS
+// 4. BASE MAPS
+// ================================================================
+
+const osm =
+    L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+
+            maxZoom: 19,
+
+            attribution:
+                "© OpenStreetMap contributors"
+
+        }
+    )
+    .addTo(map);
+
+
+const satellite =
+    L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+
+            maxZoom: 19,
+
+            attribution:
+                "Tiles © Esri"
+
+        }
+    );
+
+
+// ================================================================
+// 5. UTILITY FUNCTIONS
 // ================================================================
 
 function safeText(value) {
 
     return String(value ?? "")
-        .replace(/[&<>\"']/g, function (character) {
+        .replace(
+            /[&<>\"']/g,
+            function(character) {
 
-            return {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                "\"": "&quot;",
-                "'": "&#039;"
-            }[character];
+                return {
 
-        });
-}
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    "\"": "&quot;",
+                    "'": "&#039;"
 
+                }[character];
 
-function featureName(properties) {
-
-    return (
-        properties?.name ||
-        properties?.Name ||
-        properties?.NAME ||
-        "Unnamed location"
-    );
-}
-
-
-function featureType(properties) {
-
-    return (
-        properties?.fclass ||
-        properties?.type ||
-        properties?.amenity ||
-        ""
-    );
-}
-
-
-function popupForFeature(title, properties) {
-
-    const name = featureName(properties);
-    const type = featureType(properties);
-
-    return `
-        <div class="popup-title">
-            ${title}
-        </div>
-
-        <table class="popup-table">
-
-            <tr>
-                <td>Name</td>
-                <td>${safeText(name)}</td>
-            </tr>
-
-            ${
-                type
-                ?
-                `
-                <tr>
-                    <td>Type</td>
-                    <td>${safeText(type)}</td>
-                </tr>
-                `
-                :
-                ""
             }
+        );
 
-            ${
-                properties?.osm_id
-                ?
-                `
-                <tr>
-                    <td>OSM ID</td>
-                    <td>${safeText(properties.osm_id)}</td>
-                </tr>
-                `
-                :
-                ""
-            }
-
-        </table>
-    `;
 }
 
 
 // ================================================================
-// 5. LOAD GEOJSON
+// 6. GEOJSON LOADER
 // ================================================================
 
-async function loadGeoJSON(url, layer) {
+async function loadGeoJSON(
+    url,
+    layer
+) {
 
     try {
 
-        const response = await fetch(url);
+        console.log(
+            "Loading:",
+            url
+        );
+
+
+        const response =
+            await fetch(url);
+
 
         if (!response.ok) {
 
@@ -165,9 +133,19 @@ async function loadGeoJSON(url, layer) {
 
         }
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
 
         layer.addData(data);
+
+
+        console.log(
+            "Loaded successfully:",
+            url
+        );
+
 
         return data;
 
@@ -176,7 +154,7 @@ async function loadGeoJSON(url, layer) {
     catch (error) {
 
         console.error(
-            "GeoJSON loading error:",
+            "GeoJSON error:",
             url,
             error
         );
@@ -187,77 +165,122 @@ async function loadGeoJSON(url, layer) {
 
 
 // ================================================================
-// 6. WESTERN PROVINCE
+// 7. WESTERN PROVINCE
 // ================================================================
 
-const westernProvince = L.geoJSON(
-    null,
-    {
+const westernProvince =
+    L.geoJSON(
+        null,
+        {
 
-        style: {
+            style: {
 
-            color: "#d62828",
-            weight: 3,
-            fillColor: "#ffcccc",
-            fillOpacity: 0.12
+                color:
+                    "#d62828",
 
-        },
+                weight:
+                    3,
 
-        onEachFeature: function(feature, layer) {
+                fillColor:
+                    "#ffcccc",
 
-            layer.bindPopup(`
-                <div class="popup-title">
-                    🟥 Western Province
-                </div>
+                fillOpacity:
+                    0.10
 
-                <b>Province:</b> Western<br>
-                <b>Country:</b> Sri Lanka
-            `);
+            },
+
+
+            onEachFeature:
+                function(
+                    feature,
+                    layer
+                ) {
+
+                    layer.bindPopup(`
+
+                        <div class="popup-title">
+                            🟥 Western Province
+                        </div>
+
+                        <b>Province:</b>
+                        Western Province
+
+                        <br>
+
+                        <b>Country:</b>
+                        Sri Lanka
+
+                    `);
+
+                }
 
         }
+    )
+    .addTo(map);
 
-    }
-).addTo(map);
+
+let westernProvinceReady =
+    false;
 
 
 loadGeoJSON(
     "data/western_province.geojson",
     westernProvince
 )
-.then(function() {
+.then(
+    function() {
 
-    if (westernProvince.getBounds().isValid()) {
-
-        map.fitBounds(
-            westernProvince.getBounds(),
-            {
-                padding: [10, 10]
-            }
-        );
-
-    }
-
-});
+        westernProvinceReady =
+            true;
 
 
-// ================================================================
-// 7. ROADS
-// ================================================================
+        if (
+            westernProvince
+                .getBounds()
+                .isValid()
+        ) {
 
-const roads = L.geoJSON(
-    null,
-    {
+            map.fitBounds(
+                westernProvince.getBounds(),
+                {
 
-        style: {
+                    padding:
+                        [20, 20]
 
-            color: "#444",
-            weight: 1.6,
-            opacity: 0.75
+                }
+            );
 
         }
 
     }
 );
+
+
+// ================================================================
+// 8. ROAD NETWORK
+// DEFAULT = OFF
+// ================================================================
+
+const roads =
+    L.geoJSON(
+        null,
+        {
+
+            style: {
+
+                color:
+                    "#444444",
+
+                weight:
+                    1.5,
+
+                opacity:
+                    0.75
+
+            }
+
+        }
+    );
 
 
 loadGeoJSON(
@@ -267,23 +290,29 @@ loadGeoJSON(
 
 
 // ================================================================
-// 8. RAILWAY
+// 9. RAILWAY
 // ================================================================
 
-const railway = L.geoJSON(
-    null,
-    {
+const railway =
+    L.geoJSON(
+        null,
+        {
 
-        style: {
+            style: {
 
-            color: "#8B4513",
-            weight: 3,
-            dashArray: "8,6"
+                color:
+                    "#8B4513",
+
+                weight:
+                    3,
+
+                dashArray:
+                    "8,6"
+
+            }
 
         }
-
-    }
-);
+    );
 
 
 loadGeoJSON(
@@ -293,75 +322,118 @@ loadGeoJSON(
 
 
 // ================================================================
-// 9. POINT LAYERS
+// 10. GENERIC POINT LAYER
 // ================================================================
 
-function pointLayer(
-    file,
+function createPointLayer(
+    filename,
     color,
     title,
     emoji
 ) {
 
-    const layer = L.geoJSON(
-        null,
-        {
+    const layer =
+        L.geoJSON(
+            null,
+            {
 
-            pointToLayer: function(
-                feature,
-                latlng
-            ) {
+                pointToLayer:
+                    function(
+                        feature,
+                        latlng
+                    ) {
 
-                return L.circleMarker(
-                    latlng,
-                    {
+                        return L.circleMarker(
+                            latlng,
+                            {
 
-                        radius: 6,
+                                radius:
+                                    6,
 
-                        color: "#ffffff",
+                                color:
+                                    "#ffffff",
 
-                        weight: 1.5,
+                                weight:
+                                    1.5,
 
-                        fillColor: color,
+                                fillColor:
+                                    color,
 
-                        fillOpacity: 0.9
+                                fillOpacity:
+                                    0.9
+
+                            }
+                        );
+
+                    },
+
+
+                onEachFeature:
+                    function(
+                        feature,
+                        marker
+                    ) {
+
+                        const properties =
+                            feature.properties || {};
+
+
+                        const name =
+                            properties.name ||
+                            properties.Name ||
+                            properties.NAME ||
+                            properties.amenity ||
+                            "Unnamed location";
+
+
+                        marker.bindPopup(`
+
+                            <div class="popup-title">
+                                ${emoji}
+                                ${title}
+                            </div>
+
+                            <table class="popup-table">
+
+                                <tr>
+
+                                    <td>
+                                        Name
+                                    </td>
+
+                                    <td>
+                                        ${safeText(name)}
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        `);
 
                     }
-                );
-
-            },
-
-
-            onEachFeature: function(
-                feature,
-                layer
-            ) {
-
-                layer.bindPopup(
-                    popupForFeature(
-                        `${emoji} ${title}`,
-                        feature.properties || {}
-                    )
-                );
 
             }
-
-        }
-    );
+        );
 
 
     loadGeoJSON(
-        `data/${file}`,
+        `data/${filename}`,
         layer
     );
 
 
     return layer;
+
 }
 
 
+// ================================================================
+// 11. FACILITY LAYERS
+// ================================================================
+
 const railwayStations =
-    pointLayer(
+    createPointLayer(
         "railway_stations.geojson",
         "#8B0000",
         "Railway Station",
@@ -370,7 +442,7 @@ const railwayStations =
 
 
 const busStops =
-    pointLayer(
+    createPointLayer(
         "busstops.geojson",
         "#008000",
         "Bus Stop",
@@ -379,7 +451,7 @@ const busStops =
 
 
 const schools =
-    pointLayer(
+    createPointLayer(
         "schools.geojson",
         "#0066cc",
         "School",
@@ -388,7 +460,7 @@ const schools =
 
 
 const hospitals =
-    pointLayer(
+    createPointLayer(
         "hospitals.geojson",
         "#e63946",
         "Hospital",
@@ -397,7 +469,7 @@ const hospitals =
 
 
 const parking =
-    pointLayer(
+    createPointLayer(
         "parking.geojson",
         "#7b2cbf",
         "Parking",
@@ -406,7 +478,7 @@ const parking =
 
 
 const trafficLights =
-    pointLayer(
+    createPointLayer(
         "traffic_lights.geojson",
         "#f77f00",
         "Traffic Light",
@@ -415,7 +487,7 @@ const trafficLights =
 
 
 const pedestrianCrossings =
-    pointLayer(
+    createPointLayer(
         "pedestrian_crossings.geojson",
         "#d4a017",
         "Pedestrian Crossing",
@@ -424,17 +496,681 @@ const pedestrianCrossings =
 
 
 // ================================================================
-// 10. COMPLAINT LAYER
+// 12. COMPLAINT LAYER
 // ================================================================
 
-let complaintLayer = L.layerGroup();
+let complaintLayer =
+    L.layerGroup();
 
 
 // ================================================================
-// 11. CONVERT DMS COORDINATES TO DECIMAL
+// 13. SELECTED REPORT LOCATION
 // ================================================================
 
-function dmsToDecimal(value) {
+let currentLocation =
+    null;
+
+
+let selectedMarker =
+    null;
+
+
+let locationMarker =
+    null;
+
+
+let accuracyCircle =
+    null;
+
+
+// ================================================================
+// 14. DMS CONVERSION
+// ================================================================
+
+function dmsString(
+    value,
+    positive,
+    negative
+) {
+
+    const hemisphere =
+        value >= 0
+        ?
+        positive
+        :
+        negative;
+
+
+    let number =
+        Math.abs(value);
+
+
+    const degrees =
+        Math.floor(number);
+
+
+    number =
+        (
+            number -
+            degrees
+        ) * 60;
+
+
+    const minutes =
+        Math.floor(number);
+
+
+    const seconds =
+        (
+            number -
+            minutes
+        ) * 60;
+
+
+    return (
+
+        degrees +
+        "°" +
+        String(minutes)
+            .padStart(2, "0") +
+        "'" +
+        seconds.toFixed(1) +
+        "\"" +
+        hemisphere
+
+    );
+
+}
+
+
+// ================================================================
+// 15. SELECT REPORT LOCATION
+// ================================================================
+
+function setSelectedLocation(
+    latitude,
+    longitude,
+    label
+) {
+
+    currentLocation = {
+
+        lat:
+            latitude,
+
+        lng:
+            longitude
+
+    };
+
+
+    if (
+        selectedMarker
+    ) {
+
+        map.removeLayer(
+            selectedMarker
+        );
+
+    }
+
+
+    selectedMarker =
+        L.marker(
+            [
+                latitude,
+                longitude
+            ],
+            {
+
+                draggable:
+                    true
+
+            }
+        )
+        .addTo(map);
+
+
+    selectedMarker.bindPopup(
+        "📌 <b>Report Location</b><br>" +
+        "Drag this pin if necessary."
+    );
+
+
+    selectedMarker.openPopup();
+
+
+    selectedMarker.on(
+        "dragend",
+        function() {
+
+            const position =
+                selectedMarker.getLatLng();
+
+
+            currentLocation = {
+
+                lat:
+                    position.lat,
+
+                lng:
+                    position.lng
+
+            };
+
+
+            updateLocationStatus(
+                position.lat,
+                position.lng,
+                "Selected report location"
+            );
+
+        }
+    );
+
+
+    updateLocationStatus(
+        latitude,
+        longitude,
+        label
+    );
+
+
+    const selectedText =
+        document.getElementById(
+            "selectedLocationText"
+        );
+
+
+    if (
+        selectedText
+    ) {
+
+        selectedText.innerHTML = `
+
+            Latitude:
+            <b>${latitude.toFixed(6)}</b>
+
+            <br>
+
+            Longitude:
+            <b>${longitude.toFixed(6)}</b>
+
+        `;
+
+    }
+
+}
+
+
+// ================================================================
+// 16. LOCATION STATUS
+// ================================================================
+
+function updateLocationStatus(
+    latitude,
+    longitude,
+    label
+) {
+
+    const element =
+        document.getElementById(
+            "locationStatus"
+        );
+
+
+    if (
+        element
+    ) {
+
+        element.innerHTML =
+
+            `📌 ${safeText(label)} — ` +
+
+            `${latitude.toFixed(6)}, ` +
+
+            `${longitude.toFixed(6)}`;
+
+    }
+
+}
+
+
+// ================================================================
+// 17. CURRENT LOCATION
+// ================================================================
+
+function locateUser() {
+
+    if (
+        !navigator.geolocation
+    ) {
+
+        alert(
+            "Your browser does not support location services."
+        );
+
+        return;
+
+    }
+
+
+    const status =
+        document.getElementById(
+            "locationStatus"
+        );
+
+
+    status.textContent =
+        "📍 Finding your current location...";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+            const latitude =
+                position.coords.latitude;
+
+
+            const longitude =
+                position.coords.longitude;
+
+
+            if (
+                locationMarker
+            ) {
+
+                map.removeLayer(
+                    locationMarker
+                );
+
+            }
+
+
+            if (
+                accuracyCircle
+            ) {
+
+                map.removeLayer(
+                    accuracyCircle
+                );
+
+            }
+
+
+            locationMarker =
+                L.circleMarker(
+                    [
+                        latitude,
+                        longitude
+                    ],
+                    {
+
+                        radius:
+                            8,
+
+                        color:
+                            "#1565c0",
+
+                        fillColor:
+                            "#42a5f5",
+
+                        fillOpacity:
+                            0.9,
+
+                        weight:
+                            3
+
+                    }
+                )
+                .addTo(map);
+
+
+            locationMarker.bindPopup(
+                "📍 Your current location"
+            );
+
+
+            accuracyCircle =
+                L.circle(
+                    [
+                        latitude,
+                        longitude
+                    ],
+                    {
+
+                        radius:
+                            position.coords.accuracy || 30,
+
+                        color:
+                            "#1565c0",
+
+                        weight:
+                            1,
+
+                        fillOpacity:
+                            0.08
+
+                    }
+                )
+                .addTo(map);
+
+
+            map.setView(
+                [
+                    latitude,
+                    longitude
+                ],
+                17
+            );
+
+
+            // Current location becomes
+            // the report location too.
+            setSelectedLocation(
+                latitude,
+                longitude,
+                "Your current location"
+            );
+
+        },
+
+
+        function(error) {
+
+            console.error(
+                error
+            );
+
+
+            status.innerHTML =
+                "⚠️ Location unavailable. " +
+                "Click anywhere inside Western Province " +
+                "to select a report location.";
+
+        },
+
+
+        {
+
+            enableHighAccuracy:
+                true,
+
+            timeout:
+                10000,
+
+            maximumAge:
+                60000
+
+        }
+
+    );
+
+}
+
+
+// ================================================================
+// 18. CHECK WHETHER POINT IS INSIDE WESTERN PROVINCE
+// ================================================================
+
+function isInsideWesternProvince(
+    latitude,
+    longitude
+) {
+
+    if (
+        !westernProvinceReady
+    ) {
+
+        return null;
+
+    }
+
+
+    const point =
+        turf.point(
+            [
+                longitude,
+                latitude
+            ]
+        );
+
+
+    let inside =
+        false;
+
+
+    westernProvince.eachLayer(
+        function(layer) {
+
+            if (
+                layer.feature
+            ) {
+
+                try {
+
+                    if (
+                        turf.booleanPointInPolygon(
+                            point,
+                            layer.feature
+                        )
+                    ) {
+
+                        inside =
+                            true;
+
+                    }
+
+                }
+
+                catch(error) {
+
+                    console.error(
+                        "Boundary check error:",
+                        error
+                    );
+
+                }
+
+            }
+
+        }
+    );
+
+
+    return inside;
+
+}
+
+
+// ================================================================
+// 19. CLICK MAP TO SELECT REPORT LOCATION
+// ================================================================
+
+map.on(
+    "click",
+    function(event) {
+
+        const latitude =
+            event.latlng.lat;
+
+
+        const longitude =
+            event.latlng.lng;
+
+
+        const inside =
+            isInsideWesternProvince(
+                latitude,
+                longitude
+            );
+
+
+        if (
+            inside === null
+        ) {
+
+            alert(
+                "Please wait a moment while the Western Province boundary loads."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !inside
+        ) {
+
+            alert(
+                "⚠️ SafeWalk reports can only be submitted within Western Province."
+            );
+
+            return;
+
+        }
+
+
+        setSelectedLocation(
+            latitude,
+            longitude,
+            "Selected report location"
+        );
+
+    }
+);
+
+
+// ================================================================
+// 20. SEVERITY COLOUR
+// ================================================================
+
+function severityColor(
+    value
+) {
+
+    const severity =
+        String(value || "")
+            .toLowerCase()
+            .trim();
+
+
+    if (
+        severity.includes("severe") ||
+        severity.includes("critical") ||
+        severity.includes("high")
+    ) {
+
+        return "#d32f2f";
+
+    }
+
+
+    if (
+        severity.includes("medium") ||
+        severity.includes("moderate")
+    ) {
+
+        return "#f57c00";
+
+    }
+
+
+    if (
+        severity.includes("low")
+    ) {
+
+        return "#2e7d32";
+
+    }
+
+
+    return "#757575";
+
+}
+
+
+// ================================================================
+// 21. FIND SHEET HEADER
+// ================================================================
+
+function findHeader(
+    row,
+    patterns
+) {
+
+    const keys =
+        Object.keys(row);
+
+
+    for (
+        const pattern of patterns
+    ) {
+
+        const exact =
+            keys.find(
+                key =>
+                    key
+                        .toLowerCase()
+                        .trim() ===
+                    pattern
+                        .toLowerCase()
+                        .trim()
+            );
+
+
+        if (
+            exact
+        ) {
+
+            return exact;
+
+        }
+
+    }
+
+
+    for (
+        const pattern of patterns
+    ) {
+
+        const partial =
+            keys.find(
+                key =>
+                    key
+                        .toLowerCase()
+                        .includes(
+                            pattern
+                                .toLowerCase()
+                        )
+            );
+
+
+        if (
+            partial
+        ) {
+
+            return partial;
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+// ================================================================
+// 22. CONVERT COORDINATE
+// ================================================================
+
+function coordinateToDecimal(
+    value
+) {
 
     if (
         value === null ||
@@ -447,32 +1183,44 @@ function dmsToDecimal(value) {
 
 
     let text =
-        String(value).trim();
+        String(value)
+            .trim();
 
 
-    if (!text) {
+    if (
+        !text
+    ) {
 
         return null;
 
     }
 
 
-    // Decimal coordinate
+    // ------------------------------------------------------------
+    // Decimal
+    // ------------------------------------------------------------
+
     const decimalMatch =
         text.match(
             /^(-?\d+(?:\.\d+)?)\s*([NSEW])?$/i
         );
 
 
-    if (decimalMatch) {
+    if (
+        decimalMatch
+    ) {
 
         let number =
-            Number(decimalMatch[1]);
+            Number(
+                decimalMatch[1]
+            );
+
 
         const direction =
             (
                 decimalMatch[2] || ""
-            ).toUpperCase();
+            )
+            .toUpperCase();
 
 
         if (
@@ -491,14 +1239,19 @@ function dmsToDecimal(value) {
     }
 
 
-    // DMS coordinate
+    // ------------------------------------------------------------
+    // DMS
+    // ------------------------------------------------------------
+
     const dmsMatch =
         text.match(
             /(\d+(?:\.\d+)?)\s*[°º]\s*(\d+(?:\.\d+)?)?\s*['’′]?\s*(\d+(?:\.\d+)?)?\s*["”″]?\s*([NSEW])?/i
         );
 
 
-    if (!dmsMatch) {
+    if (
+        !dmsMatch
+    ) {
 
         return null;
 
@@ -506,15 +1259,21 @@ function dmsToDecimal(value) {
 
 
     const degrees =
-        Number(dmsMatch[1]);
+        Number(
+            dmsMatch[1]
+        );
 
 
     const minutes =
-        Number(dmsMatch[2] || 0);
+        Number(
+            dmsMatch[2] || 0
+        );
 
 
     const seconds =
-        Number(dmsMatch[3] || 0);
+        Number(
+            dmsMatch[3] || 0
+        );
 
 
     let result =
@@ -526,7 +1285,8 @@ function dmsToDecimal(value) {
     const direction =
         (
             dmsMatch[4] || ""
-        ).toUpperCase();
+        )
+        .toUpperCase();
 
 
     if (
@@ -534,7 +1294,8 @@ function dmsToDecimal(value) {
         direction === "W"
     ) {
 
-        result = -result;
+        result =
+            -result;
 
     }
 
@@ -545,130 +1306,363 @@ function dmsToDecimal(value) {
 
 
 // ================================================================
-// 12. FIND COLUMN
+// 23. UPDATE DASHBOARD
 // ================================================================
 
-function findHeader(
-    row,
-    patterns
+function updateReportStatistics(
+    data
 ) {
 
-    const keys =
-        Object.keys(row);
+    const issueCounts =
+        {};
 
 
-    // Exact match
-    for (
-        const pattern of patterns
-    ) {
-
-        const exact =
-            keys.find(
-                key =>
-                    key
-                        .toLowerCase()
-                        .trim() ===
-                    pattern
-                        .toLowerCase()
-                        .trim()
-            );
+    let lowCount =
+        0;
 
 
-        if (exact) {
+    let mediumCount =
+        0;
 
-            return exact;
+
+    let severeCount =
+        0;
+
+
+    data.forEach(
+        function(row) {
+
+            const issueKey =
+                findHeader(
+                    row,
+                    [
+                        "Issue Type",
+                        "Issue"
+                    ]
+                );
+
+
+            const severityKey =
+                findHeader(
+                    row,
+                    [
+                        "Severity Level",
+                        "Severity"
+                    ]
+                );
+
+
+            const issue =
+                issueKey
+                ?
+                String(
+                    row[issueKey] || ""
+                )
+                .trim()
+                :
+                "Other";
+
+
+            const severity =
+                severityKey
+                ?
+                String(
+                    row[severityKey] || ""
+                )
+                .toLowerCase()
+                .trim()
+                :
+                "";
+
+
+            issueCounts[issue] =
+                (
+                    issueCounts[issue] || 0
+                ) + 1;
+
+
+            if (
+                severity.includes("severe") ||
+                severity.includes("critical") ||
+                severity.includes("high")
+            ) {
+
+                severeCount++;
+
+            }
+
+            else if (
+                severity.includes("medium") ||
+                severity.includes("moderate")
+            ) {
+
+                mediumCount++;
+
+            }
+
+            else if (
+                severity.includes("low")
+            ) {
+
+                lowCount++;
+
+            }
 
         }
-
-    }
-
-
-    // Partial match
-    for (
-        const pattern of patterns
-    ) {
-
-        const partial =
-            keys.find(
-                key =>
-                    key
-                        .toLowerCase()
-                        .includes(
-                            pattern
-                                .toLowerCase()
-                        )
-            );
+    );
 
 
-        if (partial) {
+    let html = `
 
-            return partial;
+        <div class="stats-title">
+            🚨 SafeWalk Reports
+        </div>
+
+
+        <div class="total-reports">
+
+            ${data.length}
+
+            <span>
+                Total Reports
+            </span>
+
+        </div>
+
+
+        <div class="stats-section-title">
+            Issue Types
+        </div>
+
+    `;
+
+
+    const sortedIssues =
+        Object.keys(
+            issueCounts
+        )
+        .sort(
+            function(a, b) {
+
+                return (
+                    issueCounts[b] -
+                    issueCounts[a]
+                );
+
+            }
+        );
+
+
+    sortedIssues.forEach(
+        function(issue) {
+
+            html += `
+
+                <div class="stat-row">
+
+                    <span>
+                        ${safeText(issue)}
+                    </span>
+
+                    <strong>
+                        ${issueCounts[issue]}
+                    </strong>
+
+                </div>
+
+            `;
 
         }
+    );
+
+
+    html += `
+
+        <div class="stats-section-title">
+            Severity
+        </div>
+
+
+        <div class="stat-row">
+
+            <span>
+                🟢 Low
+            </span>
+
+            <strong>
+                ${lowCount}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-row">
+
+            <span>
+                🟠 Medium
+            </span>
+
+            <strong>
+                ${mediumCount}
+            </strong>
+
+        </div>
+
+
+        <div class="stat-row">
+
+            <span>
+                🔴 Severe
+            </span>
+
+            <strong>
+                ${severeCount}
+            </strong>
+
+        </div>
+
+    `;
+
+
+    const dashboard =
+        document.getElementById(
+            "reportDashboard"
+        );
+
+
+    if (
+        dashboard
+    ) {
+
+        dashboard.innerHTML =
+            html;
 
     }
-
-
-    return null;
 
 }
 
 
 // ================================================================
-// 13. SEVERITY COLOR
+// 24. LOAD GOOGLE SHEET
 // ================================================================
 
-function severityColor(
-    value
-) {
+function loadComplaintReports() {
 
-    const severity =
-        String(value || "")
-            .toLowerCase();
+    console.log(
+        "Loading SafeWalk reports..."
+    );
 
 
-    if (
-        severity.includes("critical")
-    ) {
-
-        return "#8e0000";
-
-    }
+    const callbackName =
+        "safeWalkCallback_" +
+        Date.now();
 
 
-    if (
-        severity.includes("high")
-    ) {
+    const sheetURL =
 
-        return "#c62828";
+        "https://docs.google.com/spreadsheets/d/" +
 
-    }
+        GOOGLE_SHEET_ID +
+
+        "/gviz/tq" +
+
+        "?gid=" +
+
+        encodeURIComponent(
+            GOOGLE_SHEET_GID
+        ) +
+
+        "&headers=1" +
+
+        "&tqx=responseHandler:" +
+
+        callbackName;
 
 
-    if (
-        severity.includes("medium")
-    ) {
-
-        return "#ef6c00";
-
-    }
+    console.log(
+        "Google Sheet query:",
+        sheetURL
+    );
 
 
-    return "#2e7d32";
+    window[
+        callbackName
+    ] =
+        function(response) {
+
+            try {
+
+                processGoogleSheetResponse(
+                    response
+                );
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "Google Sheet processing error:",
+                    error
+                );
+
+            }
+
+
+            delete window[
+                callbackName
+            ];
+
+
+            if (
+                script.parentNode
+            ) {
+
+                script.parentNode.removeChild(
+                    script
+                );
+
+            }
+
+        };
+
+
+    const script =
+        document.createElement(
+            "script"
+        );
+
+
+    script.src =
+        sheetURL;
+
+
+    script.onerror =
+        function() {
+
+            console.error(
+                "Google Sheet could not be accessed."
+            );
+
+        };
+
+
+    document.body.appendChild(
+        script
+    );
 
 }
 
 
 // ================================================================
-// 14. GOOGLE SHEETS → LEAFLET
+// 25. PROCESS GOOGLE SHEET RESPONSE
 // ================================================================
 
-function displayGoogleSheetData(
+function processGoogleSheetResponse(
     response
 ) {
 
     console.log(
-        "Google Sheet response received:",
+        "Google Sheet response:",
         response
     );
 
@@ -679,7 +1673,7 @@ function displayGoogleSheetData(
     ) {
 
         console.error(
-            "Google Sheet returned no table."
+            "No Google Sheet table received."
         );
 
         return;
@@ -687,44 +1681,33 @@ function displayGoogleSheetData(
     }
 
 
-    const table =
-        response.table;
-
-
     const columns =
-        table.cols || [];
+        response.table.cols || [];
 
 
     const rows =
-        table.rows || [];
+        response.table.rows || [];
 
 
-    console.log(
-        "Google Sheet columns:",
-        columns
-    );
-
-
-    console.log(
-        "Google Sheet rows:",
-        rows
-    );
-
-
-    // Convert Google DataTable into normal objects
-    const data = [];
+    const data =
+        [];
 
 
     rows.forEach(
         function(row) {
 
-            const object = {};
+            const object =
+                {};
 
 
             columns.forEach(
-                function(column, index) {
+                function(
+                    column,
+                    index
+                ) {
 
-                    let value = "";
+                    let value =
+                        "";
 
 
                     if (
@@ -742,81 +1725,63 @@ function displayGoogleSheetData(
                         column.label ||
                         column.id ||
                         `column_${index}`
-                    ] = value;
+                    ] =
+                        value;
 
                 }
             );
 
 
-            data.push(object);
+            data.push(
+                object
+            );
 
         }
     );
 
 
     console.log(
-        "Converted complaint data:",
+        "Google Sheet data:",
         data
     );
 
 
-    // Clear old points
+    updateReportStatistics(
+        data
+    );
+
+
     complaintLayer.clearLayers();
 
 
-    let validReports = 0;
+    let validReports =
+        0;
 
 
     data.forEach(
         function(row) {
-
-            console.log(
-                "Processing report:",
-                row
-            );
-
-
-            // ----------------------------------------------------
-            // Find Latitude
-            // ----------------------------------------------------
 
             const latitudeKey =
                 findHeader(
                     row,
                     [
                         "Latitude",
-                        "lat",
-                        "latitude"
+                        "latitude",
+                        "lat"
                     ]
                 );
 
-
-            // ----------------------------------------------------
-            // Find Longitude
-            // ----------------------------------------------------
 
             const longitudeKey =
                 findHeader(
                     row,
                     [
                         "Longitude",
+                        "longitude",
                         "lng",
-                        "lon",
-                        "longitude"
+                        "lon"
                     ]
                 );
-
-
-            console.log(
-                "Latitude column:",
-                latitudeKey
-            );
-
-
-            console.log(
-                "Longitude column:",
-                longitudeKey
-            );
 
 
             if (
@@ -825,7 +1790,7 @@ function displayGoogleSheetData(
             ) {
 
                 console.warn(
-                    "Latitude or longitude column not found.",
+                    "Latitude/Longitude columns not found:",
                     row
                 );
 
@@ -835,22 +1800,15 @@ function displayGoogleSheetData(
 
 
             const latitude =
-                dmsToDecimal(
+                coordinateToDecimal(
                     row[latitudeKey]
                 );
 
 
             const longitude =
-                dmsToDecimal(
+                coordinateToDecimal(
                     row[longitudeKey]
                 );
-
-
-            console.log(
-                "Converted coordinates:",
-                latitude,
-                longitude
-            );
 
 
             if (
@@ -877,10 +1835,6 @@ function displayGoogleSheetData(
 
             }
 
-
-            // ----------------------------------------------------
-            // Find other columns
-            // ----------------------------------------------------
 
             const issueKey =
                 findHeader(
@@ -956,7 +1910,7 @@ function displayGoogleSheetData(
                 ?
                 row[severityKey]
                 :
-                "";
+                "Unknown";
 
 
             const description =
@@ -991,10 +1945,6 @@ function displayGoogleSheetData(
                 "";
 
 
-            // ----------------------------------------------------
-            // Create marker
-            // ----------------------------------------------------
-
             const marker =
                 L.circleMarker(
                     [
@@ -1003,63 +1953,81 @@ function displayGoogleSheetData(
                     ],
                     {
 
-                        radius: 9,
+                        radius:
+                            9,
 
-                        color: "#ffffff",
+                        color:
+                            "#ffffff",
 
-                        weight: 2,
+                        weight:
+                            2,
 
                         fillColor:
                             severityColor(
                                 severity
                             ),
 
-                        fillOpacity: 0.95
+                        fillOpacity:
+                            0.95
 
                     }
                 );
 
 
-            // ----------------------------------------------------
-            // Popup
-            // ----------------------------------------------------
+            let popup = `
 
-            let popupHTML = `
+                <div class="popup-title">
+                    🚨 SafeWalk Report
+                </div>
 
-                <div class="complaint-popup">
 
-                    <div class="popup-title">
-                        🚨 SafeWalk Report
-                    </div>
+                <table class="popup-table">
 
-                    <table class="popup-table">
 
-                        <tr>
-                            <td>Issue</td>
-                            <td>
-                                ${safeText(issue)}
-                            </td>
-                        </tr>
+                    <tr>
 
-                        <tr>
-                            <td>Severity</td>
-                            <td>
-                                ${safeText(severity)}
-                            </td>
-                        </tr>
+                        <td>
+                            Issue
+                        </td>
+
+                        <td>
+                            ${safeText(issue)}
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+
+                        <td>
+                            Severity
+                        </td>
+
+                        <td>
+                            ${safeText(severity)}
+                        </td>
+
+                    </tr>
 
             `;
 
 
-            if (date) {
+            if (
+                date
+            ) {
 
-                popupHTML += `
+                popup += `
 
                     <tr>
-                        <td>Date</td>
+
+                        <td>
+                            Date
+                        </td>
+
                         <td>
                             ${safeText(date)}
                         </td>
+
                     </tr>
 
                 `;
@@ -1067,31 +2035,22 @@ function displayGoogleSheetData(
             }
 
 
-            if (timestamp) {
+            if (
+                description
+            ) {
 
-                popupHTML += `
+                popup += `
 
                     <tr>
-                        <td>Reported</td>
+
                         <td>
-                            ${safeText(timestamp)}
+                            Description
                         </td>
-                    </tr>
 
-                `;
-
-            }
-
-
-            if (description) {
-
-                popupHTML += `
-
-                    <tr>
-                        <td>Description</td>
                         <td>
                             ${safeText(description)}
                         </td>
+
                     </tr>
 
                 `;
@@ -1099,26 +2058,59 @@ function displayGoogleSheetData(
             }
 
 
-            popupHTML += `
+            if (
+                timestamp
+            ) {
+
+                popup += `
 
                     <tr>
-                        <td>Latitude</td>
+
+                        <td>
+                            Reported
+                        </td>
+
+                        <td>
+                            ${safeText(timestamp)}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+
+
+            popup += `
+
+                    <tr>
+
+                        <td>
+                            Latitude
+                        </td>
+
                         <td>
                             ${latitude.toFixed(6)}
                         </td>
+
                     </tr>
 
+
                     <tr>
-                        <td>Longitude</td>
+
+                        <td>
+                            Longitude
+                        </td>
+
                         <td>
                             ${longitude.toFixed(6)}
                         </td>
+
                     </tr>
 
             `;
 
 
-            // Evidence/photo
             if (
                 photo &&
                 /^https?:\/\//i.test(
@@ -1126,19 +2118,24 @@ function displayGoogleSheetData(
                 )
             ) {
 
-                popupHTML += `
+                popup += `
 
                     <tr>
-                        <td>Evidence</td>
 
                         <td>
+                            Evidence
+                        </td>
+
+                        <td>
+
                             <a
                                 href="${safeText(photo)}"
                                 target="_blank"
                                 rel="noopener"
                             >
-                                View Photo
+                                📷 View Photo
                             </a>
+
                         </td>
 
                     </tr>
@@ -1148,17 +2145,15 @@ function displayGoogleSheetData(
             }
 
 
-            popupHTML += `
+            popup += `
 
-                    </table>
-
-                </div>
+                </table>
 
             `;
 
 
             marker.bindPopup(
-                popupHTML
+                popup
             );
 
 
@@ -1179,14 +2174,15 @@ function displayGoogleSheetData(
     );
 
 
-    // Update report count
     const countElement =
         document.getElementById(
             "reportCount"
         );
 
 
-    if (countElement) {
+    if (
+        countElement
+    ) {
 
         countElement.textContent =
             validReports;
@@ -1195,510 +2191,29 @@ function displayGoogleSheetData(
 
 
     // Automatically show complaint layer
-    // if reports exist.
     if (
-        validReports > 0 &&
-        !map.hasLayer(
-            complaintLayer
-        )
+        validReports > 0
     ) {
-
-        complaintLayer.addTo(map);
-
-    }
-
-}
-
-
-// ================================================================
-// 15. LOAD GOOGLE SHEET USING JSONP
-// ================================================================
-
-function loadComplaintReports() {
-
-    console.log(
-        "Loading SafeWalk reports..."
-    );
-
-
-    const callbackName =
-        "safeWalkSheetCallback_" +
-        Date.now();
-
-
-    // Google Visualization query
-    const sheetURL =
-        "https://docs.google.com/spreadsheets/d/" +
-        GOOGLE_SHEET_ID +
-        "/gviz/tq" +
-        "?gid=" +
-        encodeURIComponent(
-            GOOGLE_SHEET_GID
-        ) +
-        "&headers=1" +
-        "&tqx=responseHandler:" +
-        callbackName;
-
-
-    console.log(
-        "Google Sheet URL:",
-        sheetURL
-    );
-
-
-    // Create global callback
-    window[
-        callbackName
-    ] = function(response) {
-
-        try {
-
-            displayGoogleSheetData(
-                response
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Error processing Google Sheet:",
-                error
-            );
-
-        }
-
-
-        // Remove callback
-        delete window[
-            callbackName
-        ];
-
 
         if (
-            script.parentNode
+            !map.hasLayer(
+                complaintLayer
+            )
         ) {
 
-            script.parentNode.removeChild(
-                script
+            complaintLayer.addTo(
+                map
             );
 
         }
 
-    };
-
-
-    // Create script element
-    const script =
-        document.createElement(
-            "script"
-        );
-
-
-    script.src =
-        sheetURL;
-
-
-    script.onerror =
-        function() {
-
-            console.error(
-                "Could not access Google Sheet."
-            );
-
-
-            console.error(
-                "Check that the sheet is public/published."
-            );
-
-        };
-
-
-    document.body.appendChild(
-        script
-    );
-
-}
-
-
-// ================================================================
-// 16. CURRENT LOCATION
-// ================================================================
-
-let currentLocation = null;
-
-let locationMarker = null;
-
-let accuracyCircle = null;
-
-let selectedMarker = null;
-
-
-function dmsString(
-    value,
-    positive,
-    negative
-) {
-
-    const hemisphere =
-        value >= 0
-        ?
-        positive
-        :
-        negative;
-
-
-    let number =
-        Math.abs(value);
-
-
-    const degrees =
-        Math.floor(number);
-
-
-    number =
-        (
-            number -
-            degrees
-        ) * 60;
-
-
-    const minutes =
-        Math.floor(number);
-
-
-    const seconds =
-        (
-            number -
-            minutes
-        ) * 60;
-
-
-    return (
-        degrees +
-        "°" +
-        String(minutes)
-            .padStart(2, "0") +
-        "'" +
-        seconds.toFixed(1) +
-        "\"" +
-        hemisphere
-    );
-
-}
-
-
-function updateStatus(
-    latitude,
-    longitude,
-    label
-) {
-
-    const status =
-        document.getElementById(
-            "locationStatus"
-        );
-
-
-    if (!status) {
-
-        return;
-
     }
 
-
-    status.innerHTML =
-        `${safeText(label)} — ` +
-        `${latitude.toFixed(6)}, ` +
-        `${longitude.toFixed(6)}`;
-
-}
-
-
-function setSelectedLocation(
-    latitude,
-    longitude,
-    label
-) {
-
-    currentLocation = {
-
-        lat: latitude,
-
-        lng: longitude
-
-    };
-
-
-    if (
-        selectedMarker
-    ) {
-
-        map.removeLayer(
-            selectedMarker
-        );
-
-    }
-
-
-    selectedMarker =
-        L.marker(
-            [
-                latitude,
-                longitude
-            ],
-            {
-                draggable: true
-            }
-        )
-        .addTo(map);
-
-
-    selectedMarker.bindPopup(
-        "📍 Report location<br>" +
-        "Drag the pin to adjust the location."
-    );
-
-
-    selectedMarker.openPopup();
-
-
-    selectedMarker.on(
-        "dragend",
-        function() {
-
-            const position =
-                selectedMarker.getLatLng();
-
-
-            currentLocation = {
-
-                lat: position.lat,
-
-                lng: position.lng
-
-            };
-
-
-            updateStatus(
-                position.lat,
-                position.lng,
-                "Selected report location"
-            );
-
-        }
-    );
-
-
-    updateStatus(
-        latitude,
-        longitude,
-        label
-    );
-
 }
 
 
 // ================================================================
-// 17. GET CURRENT USER LOCATION
-// ================================================================
-
-function locateUser() {
-
-    if (
-        !navigator.geolocation
-    ) {
-
-        alert(
-            "Geolocation is not supported by this browser."
-        );
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        "locationStatus"
-    ).textContent =
-        "Requesting your location...";
-
-
-    navigator.geolocation.getCurrentPosition(
-
-        function(position) {
-
-            const latitude =
-                position.coords.latitude;
-
-
-            const longitude =
-                position.coords.longitude;
-
-
-            currentLocation = {
-
-                lat: latitude,
-
-                lng: longitude
-
-            };
-
-
-            if (
-                locationMarker
-            ) {
-
-                map.removeLayer(
-                    locationMarker
-                );
-
-            }
-
-
-            if (
-                accuracyCircle
-            ) {
-
-                map.removeLayer(
-                    accuracyCircle
-                );
-
-            }
-
-
-            locationMarker =
-                L.circleMarker(
-                    [
-                        latitude,
-                        longitude
-                    ],
-                    {
-
-                        radius: 8,
-
-                        color: "#1565c0",
-
-                        fillColor: "#42a5f5",
-
-                        fillOpacity: 0.9,
-
-                        weight: 3
-
-                    }
-                )
-                .addTo(map);
-
-
-            locationMarker.bindPopup(
-                "📍 Your current location"
-            );
-
-
-            accuracyCircle =
-                L.circle(
-                    [
-                        latitude,
-                        longitude
-                    ],
-                    {
-
-                        radius:
-                            position.coords.accuracy || 30,
-
-                        color: "#1565c0",
-
-                        weight: 1,
-
-                        fillOpacity: 0.08
-
-                    }
-                )
-                .addTo(map);
-
-
-            map.setView(
-                [
-                    latitude,
-                    longitude
-                ],
-                17
-            );
-
-
-            updateStatus(
-                latitude,
-                longitude,
-                "Your current location"
-            );
-
-        },
-
-
-        function(error) {
-
-            console.error(
-                error
-            );
-
-
-            document.getElementById(
-                "locationStatus"
-            ).textContent =
-                "Location permission was not available. Click the map to select a location.";
-
-            alert(
-                "We could not access your current location. " +
-                "Please allow location access, or click the map."
-            );
-
-        },
-
-
-        {
-
-            enableHighAccuracy: true,
-
-            timeout: 10000,
-
-            maximumAge: 60000
-
-        }
-
-    );
-
-}
-
-
-// ================================================================
-// 18. CLICK MAP TO SELECT REPORT LOCATION
-// ================================================================
-
-map.on(
-    "click",
-    function(event) {
-
-        setSelectedLocation(
-            event.latlng.lat,
-            event.latlng.lng,
-            "Selected report location"
-        );
-
-    }
-);
-
-
-document.getElementById(
-    "locateBtn"
-)
-.addEventListener(
-    "click",
-    locateUser
-);
-
-
-// ================================================================
-// 19. GOOGLE FORM PREFILL
+// 26. GOOGLE FORM
 // ================================================================
 
 function buildPrefilledFormURL() {
@@ -1712,7 +2227,7 @@ function buildPrefilledFormURL() {
     }
 
 
-    const latitudeDMS =
+    const latitude =
         dmsString(
             currentLocation.lat,
             "N",
@@ -1720,7 +2235,7 @@ function buildPrefilledFormURL() {
         );
 
 
-    const longitudeDMS =
+    const longitude =
         dmsString(
             currentLocation.lng,
             "E",
@@ -1740,27 +2255,29 @@ function buildPrefilledFormURL() {
 
     parameters.set(
         `entry.${FORM_ENTRY_LONGITUDE}`,
-        longitudeDMS
+        longitude
     );
 
 
     parameters.set(
         `entry.${FORM_ENTRY_LATITUDE}`,
-        latitudeDMS
+        latitude
     );
 
 
     return (
+
         FORM_VIEW_URL +
         "?" +
         parameters.toString()
+
     );
 
 }
 
 
 // ================================================================
-// 20. REPORT MODAL
+// 27. OPEN REPORT FORM
 // ================================================================
 
 const modal =
@@ -1786,7 +2303,10 @@ function openReportForm() {
     ) {
 
         alert(
-            "First click 'My Location' or click the map to select the location you want to report."
+
+            "📍 First select a report location by clicking " +
+            "My Location or clicking inside Western Province."
+
         );
 
         return;
@@ -1799,7 +2319,7 @@ function openReportForm() {
 
 
     console.log(
-        "Prefilled Google Form:",
+        "Google Form:",
         activeFormURL
     );
 
@@ -1815,86 +2335,107 @@ function openReportForm() {
 }
 
 
-document.getElementById(
-    "reportBtn"
-)
-.addEventListener(
-    "click",
-    openReportForm
-);
+// ================================================================
+// 28. REPORT BUTTON
+// ================================================================
+
+document
+    .getElementById(
+        "reportBtn"
+    )
+    .addEventListener(
+        "click",
+        openReportForm
+    );
 
 
 // ================================================================
-// 21. CLOSE FORM
+// 29. CURRENT LOCATION BUTTON
 // ================================================================
 
-document.getElementById(
-    "closeModal"
-)
-.addEventListener(
-    "click",
-    function() {
-
-        modal.classList.add(
-            "hidden"
-        );
-
-
-        formFrame.src =
-            "about:blank";
-
-
-        // Wait a little for Google Sheets
-        // to receive the new response.
-        setTimeout(
-            loadComplaintReports,
-            2500
-        );
-
-    }
-);
+document
+    .getElementById(
+        "locateBtn"
+    )
+    .addEventListener(
+        "click",
+        locateUser
+    );
 
 
 // ================================================================
-// 22. OPEN GOOGLE FORM IN NEW TAB
+// 30. CLOSE MODAL FUNCTION
 // ================================================================
 
-document.getElementById(
-    "openFormBtn"
-)
-.addEventListener(
-    "click",
-    function() {
+function closeReportModal() {
 
-        window.open(
-            activeFormURL,
-            "_blank",
-            "noopener"
-        );
-
-    }
-);
+    modal.classList.add(
+        "hidden"
+    );
 
 
-// ================================================================
-// 23. MANUAL REFRESH
-// ================================================================
+    formFrame.src =
+        "about:blank";
 
-document.getElementById(
-    "refreshReportsBtn"
-)
-.addEventListener(
-    "click",
-    function() {
 
-        loadComplaintReports();
+    // Refresh reports after returning
+    // from Google Form.
+    setTimeout(
+        loadComplaintReports,
+        3000
+    );
 
-    }
-);
+}
 
 
 // ================================================================
-// 24. CLOSE MODAL BY CLICKING OUTSIDE
+// 31. CLOSE BUTTONS
+// ================================================================
+
+document
+    .getElementById(
+        "closeModal"
+    )
+    .addEventListener(
+        "click",
+        closeReportModal
+    );
+
+
+document
+    .getElementById(
+        "closeModalBottom"
+    )
+    .addEventListener(
+        "click",
+        closeReportModal
+    );
+
+
+// ================================================================
+// 32. OPEN FORM IN NEW TAB
+// ================================================================
+
+document
+    .getElementById(
+        "openFormBtn"
+    )
+    .addEventListener(
+        "click",
+        function() {
+
+            window.open(
+                activeFormURL,
+                "_blank",
+                "noopener"
+            );
+
+        }
+    );
+
+
+// ================================================================
+// 33. CLOSE MODAL BY CLICKING OUTSIDE
 // ================================================================
 
 modal.addEventListener(
@@ -1905,19 +2446,7 @@ modal.addEventListener(
             event.target === modal
         ) {
 
-            modal.classList.add(
-                "hidden"
-            );
-
-
-            formFrame.src =
-                "about:blank";
-
-
-            setTimeout(
-                loadComplaintReports,
-                2500
-            );
+            closeReportModal();
 
         }
 
@@ -1926,7 +2455,7 @@ modal.addEventListener(
 
 
 // ================================================================
-// 25. LAYER CONTROL
+// 34. LAYER CONTROL
 // ================================================================
 
 const baseMaps = {
@@ -1982,55 +2511,85 @@ L.control.layers(
     baseMaps,
     overlays,
     {
-        collapsed: false
+
+        collapsed:
+            false
+
     }
-).addTo(map);
+)
+.addTo(map);
 
 
 // ================================================================
-// 26. REPORT COUNTER
+// 35. SEVERITY LEGEND
 // ================================================================
 
-const countControl =
-    L.control({
-        position: "topright"
-    });
+const severityLegend =
+    L.control(
+        {
+
+            position:
+                "bottomright"
+
+        }
+    );
 
 
-countControl.onAdd =
+severityLegend.onAdd =
     function() {
 
         const div =
             L.DomUtil.create(
                 "div",
-                "leaflet-control leaflet-bar"
+                "severity-legend"
             );
 
 
-        div.style.background =
-            "#ffffff";
+        div.innerHTML = `
+
+            <div class="legend-title">
+                Complaint Severity
+            </div>
 
 
-        div.style.padding =
-            "7px 10px";
+            <div class="legend-item">
+
+                <span
+                    class="legend-circle low"
+                ></span>
+
+                Low
+
+            </div>
 
 
-        div.style.fontSize =
-            "12px";
+            <div class="legend-item">
+
+                <span
+                    class="legend-circle medium"
+                ></span>
+
+                Medium
+
+            </div>
 
 
-        div.style.fontWeight =
-            "700";
+            <div class="legend-item">
+
+                <span
+                    class="legend-circle severe"
+                ></span>
+
+                Severe
+
+            </div>
+
+        `;
 
 
-        div.innerHTML =
-            'Reports: <span id="reportCount">0</span>';
-
-
-        L.DomEvent
-            .disableClickPropagation(
-                div
-            );
+        L.DomEvent.disableClickPropagation(
+            div
+        );
 
 
         return div;
@@ -2038,18 +2597,21 @@ countControl.onAdd =
     };
 
 
-countControl.addTo(map);
+severityLegend.addTo(
+    map
+);
 
 
 // ================================================================
-// 27. LOAD REPORTS WHEN WEBSITE STARTS
+// 36. INITIAL LOAD
 // ================================================================
 
 loadComplaintReports();
 
 
 // ================================================================
-// 28. AUTOMATIC REFRESH EVERY 30 SECONDS
+// 37. AUTOMATIC REPORT REFRESH
+// Every 30 seconds
 // ================================================================
 
 setInterval(
