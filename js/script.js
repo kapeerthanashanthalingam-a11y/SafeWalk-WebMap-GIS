@@ -12,8 +12,8 @@ const FORM_ENTRY_LATITUDE  = "1288249379";
 
 // Google Form response sheet configuration.
 // AFTER publishing your response sheet to the web, put its ID and GID here.
-const GOOGLE_SHEET_ID = "PASTE_YOUR_RESPONSE_SHEET_ID_HERE";
-const GOOGLE_SHEET_GID = "0";
+const GOOGLE_SHEET_ID = "185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48";
+const GOOGLE_SHEET_GID = "1834860223";
 
 // Refresh complaint reports every 60 seconds.
 const REPORT_REFRESH_MS = 60000;
