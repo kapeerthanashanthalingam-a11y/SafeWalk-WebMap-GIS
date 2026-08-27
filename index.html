@@ -1,49 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SafeWalk | Western Province</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-<link rel="stylesheet" href="css/style.css">
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>SafeWalk - Western Province</title>
+
+
+    <!-- =====================================================
+         LEAFLET CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+
+    <!-- =====================================================
+         OUR CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
 </head>
+
+
 <body>
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-title">🚶 SafeWalk</div>
-    <div class="brand-subtitle">Public Pedestrian Safety &amp; Complaint Web Map — Western Province</div>
-  </div>
-  <div class="header-actions">
-    <button id="locateBtn" class="btn btn-light">📍 My Location</button>
-    <button id="reportBtn" class="btn btn-danger">🚨 Report an Issue</button>
-  </div>
-</header>
 
-<main>
-  <div id="map"></div>
-  <div class="status-panel" id="statusPanel">
-    <b>Location:</b> <span id="locationStatus">Click “My Location” or click the map.</span>
-  </div>
-</main>
 
-<div id="reportModal" class="modal hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div>
-        <h2>🚨 Report a Pedestrian Safety Issue</h2>
-        <p>Your selected/current location is pre-filled in the form.</p>
-      </div>
-      <button id="closeModal" class="close-btn">×</button>
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="top-header">
+
+        <div>
+
+            <h1>
+                🚶 SafeWalk
+            </h1>
+
+            <p>
+                Public Pedestrian Safety & Complaint Web Map
+            </p>
+
+        </div>
+
+
+        <div class="header-buttons">
+
+            <button
+                id="locateBtn"
+                class="location-btn"
+            >
+                📍 My Location
+            </button>
+
+
+            <button
+                id="reportBtn"
+                class="report-btn"
+            >
+                🚨 Report an Issue
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         LOCATION STATUS
+         ===================================================== -->
+
+    <div
+        id="locationStatus"
+        class="location-status"
+    >
+        Click <b>My Location</b> or click anywhere inside
+        Western Province to select a report location.
     </div>
-    <div class="modal-actions">
-      <button id="openFormBtn" class="btn btn-light">↗ Open Form in New Tab</button>
-      <button id="refreshReportsBtn" class="btn btn-success">↻ Refresh Reports</button>
-    </div>
-    <iframe id="formFrame" title="SafeWalk Complaint Form" loading="lazy"></iframe>
-  </div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script src="js/script.js"></script>
+
+    <!-- =====================================================
+         MAP
+         ===================================================== -->
+
+    <div id="map"></div>
+
+
+    <!-- =====================================================
+         REPORT DASHBOARD
+         ===================================================== -->
+
+    <div
+        id="reportDashboard"
+        class="report-dashboard"
+    >
+
+        <div class="stats-title">
+            🚨 SafeWalk Reports
+        </div>
+
+
+        <div class="total-reports">
+
+            0
+
+            <span>
+                Total Reports
+            </span>
+
+        </div>
+
+
+        <div class="stats-section-title">
+            Issue Types
+        </div>
+
+
+        <p>
+            Loading reports...
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         GOOGLE FORM MODAL
+         ===================================================== -->
+
+    <div
+        id="reportModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+                <h2>
+                    🚨 Report Pedestrian Safety Issue
+                </h2>
+
+
+                <button
+                    id="closeModal"
+                    class="close-btn"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="selected-location-box">
+
+                <strong>
+                    📍 Selected Report Location
+                </strong>
+
+                <div id="selectedLocationText">
+                    Location selected on map
+                </div>
+
+            </div>
+
+
+            <iframe
+                id="formFrame"
+                title="SafeWalk Report Form"
+                src="about:blank"
+            ></iframe>
+
+
+            <div class="modal-footer">
+
+                <button
+                    id="openFormBtn"
+                    class="secondary-btn"
+                >
+                    Open Form in New Tab
+                </button>
+
+
+                <button
+                    id="closeModalBottom"
+                    class="primary-btn"
+                >
+                    Return to Map
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         LEAFLET JS
+         ===================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <!-- =====================================================
+         TURF JS
+         Used for Western Province boundary checking
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"
+    ></script>
+
+
+    <!-- =====================================================
+         OUR JAVASCRIPT
+         ===================================================== -->
+
+    <script
+        src="js/script.js"
+    ></script>
+
+
 </body>
+
 </html>
