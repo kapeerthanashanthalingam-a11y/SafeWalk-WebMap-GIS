@@ -1,18 +1,9 @@
-/* =========================================================
-   SAFEWALK
-   PUBLIC PEDESTRIAN SAFETY WEB MAP
-   WESTERN PROVINCE
-   ========================================================= */
-
-
-/* =========================================================
+/* =========================================
    GENERAL
-   ========================================================= */
+========================================= */
 
 * {
-
     box-sizing: border-box;
-
 }
 
 
@@ -20,11 +11,9 @@ html,
 body {
 
     margin: 0;
-
     padding: 0;
 
     width: 100%;
-
     height: 100%;
 
     font-family:
@@ -32,842 +21,818 @@ body {
         Helvetica,
         sans-serif;
 
+    overflow: hidden;
+
 }
 
 
-/* =========================================================
+/* =========================================
    HEADER
-   ========================================================= */
+========================================= */
 
 .top-header {
 
-    height: 70px;
+    height: 84px;
 
     background:
-        #12372a;
+        linear-gradient(
+            90deg,
+            #073b2f,
+            #0c4b3c
+        );
 
-    color:
-        white;
+    color: white;
 
-    display:
-        flex;
+    display: flex;
 
-    align-items:
-        center;
+    justify-content: space-between;
 
-    justify-content:
-        space-between;
+    align-items: center;
 
-    padding:
-        8px 18px;
+    padding: 0 22px;
 
-    position:
-        relative;
+    position: relative;
 
-    z-index:
-        2000;
+    z-index: 1000;
 
-}
-
-
-.top-header h1 {
-
-    margin:
-        0;
-
-    font-size:
-        24px;
+    box-shadow:
+        0 2px 8px
+        rgba(0,0,0,0.25);
 
 }
 
 
-.top-header p {
+.brand {
 
-    margin:
-        2px 0 0 0;
+    display: flex;
 
-    font-size:
-        12px;
+    align-items: center;
 
-    opacity:
-        0.9;
+    gap: 12px;
 
 }
 
 
-/* =========================================================
-   HEADER BUTTONS
-   ========================================================= */
+.brand-icon {
+
+    font-size: 30px;
+
+}
+
+
+.brand-title {
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+    line-height: 30px;
+
+}
+
+
+.brand-subtitle {
+
+    font-size: 14px;
+
+    opacity: 0.9;
+
+    margin-top: 3px;
+
+}
+
 
 .header-buttons {
 
-    display:
-        flex;
+    display: flex;
 
-    gap:
-        8px;
+    gap: 10px;
 
 }
 
 
-.header-buttons button {
+.header-btn {
 
-    border:
-        none;
+    border: none;
+
+    border-radius: 8px;
 
     padding:
-        10px 14px;
+        12px
+        20px;
 
-    border-radius:
-        6px;
+    font-size: 14px;
 
-    cursor:
-        pointer;
+    font-weight: 600;
 
-    font-weight:
-        bold;
+    cursor: pointer;
 
-    font-size:
-        13px;
+    transition: 0.2s;
+
+}
+
+
+.header-btn:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 3px 8px
+        rgba(0,0,0,0.25);
 
 }
 
 
 .location-btn {
 
-    background:
-        #ffffff;
+    background: white;
 
-    color:
-        #12372a;
+    color: #123c31;
 
 }
 
 
 .report-btn {
 
-    background:
-        #d32f2f;
+    background: #e52f36;
 
-    color:
-        white;
+    color: white;
 
 }
 
 
-.header-buttons button:hover {
-
-    opacity:
-        0.85;
-
-}
-
-
-/* =========================================================
-   LOCATION STATUS
-   ========================================================= */
-
-.location-status {
-
-    position:
-        absolute;
-
-    top:
-        82px;
-
-    left:
-        15px;
-
-    z-index:
-        1500;
-
-    background:
-        white;
-
-    padding:
-        9px 13px;
-
-    border-radius:
-        6px;
-
-    box-shadow:
-        0 2px 8px rgba(0,0,0,0.25);
-
-    font-size:
-        12px;
-
-    max-width:
-        360px;
-
-}
-
-
-/* =========================================================
+/* =========================================
    MAP
-   ========================================================= */
+========================================= */
 
 #map {
 
-    width:
-        100%;
+    position: absolute;
 
-    height:
-        calc(100vh - 70px);
+    top: 84px;
+    bottom: 0;
 
-}
+    left: 0;
+    right: 0;
 
-
-/* =========================================================
-   POPUP
-   ========================================================= */
-
-.popup-title {
-
-    font-size:
-        16px;
-
-    font-weight:
-        bold;
-
-    margin-bottom:
-        8px;
+    z-index: 1;
 
 }
 
 
-.popup-table {
+/* =========================================
+   CURRENT LOCATION BOX
+========================================= */
 
-    border-collapse:
-        collapse;
+.location-info {
 
-    width:
-        100%;
+    position: absolute;
 
-}
+    top: 98px;
+    left: 18px;
 
+    z-index: 900;
 
-.popup-table td {
+    background: white;
 
     padding:
-        5px;
-
-    border-bottom:
-        1px solid #eeeeee;
-
-    vertical-align:
-        top;
-
-}
-
-
-.popup-table td:first-child {
-
-    font-weight:
-        bold;
-
-    width:
-        38%;
-
-}
-
-
-/* =========================================================
-   REPORT DASHBOARD
-   ========================================================= */
-
-.report-dashboard {
-
-    position:
-        absolute;
-
-    top:
-        145px;
-
-    right:
+        12px
         15px;
 
-    width:
-        255px;
+    border-radius: 8px;
 
-    max-height:
-        500px;
-
-    overflow-y:
-        auto;
-
-    background:
-        white;
-
-    padding:
-        15px;
-
-    border-radius:
-        10px;
+    font-size: 14px;
 
     box-shadow:
-        0 3px 12px rgba(0,0,0,0.25);
-
-    z-index:
-        1200;
+        0 2px 10px
+        rgba(0,0,0,0.18);
 
 }
 
 
-.stats-title {
+/* =========================================
+   RIGHT PANEL
+========================================= */
 
-    font-size:
-        17px;
+.right-panel {
 
-    font-weight:
-        bold;
+    position: absolute;
 
-    margin-bottom:
-        10px;
+    top: 98px;
 
-}
+    right: 18px;
 
+    width: 315px;
 
-.total-reports {
+    max-height:
+        calc(100vh - 115px);
 
-    font-size:
-        30px;
+    overflow-y: auto;
 
-    font-weight:
-        bold;
+    z-index: 900;
 
-    margin-bottom:
-        12px;
+    display: flex;
 
-}
+    flex-direction: column;
 
-
-.total-reports span {
-
-    display:
-        block;
-
-    font-size:
-        12px;
-
-    font-weight:
-        normal;
-
-    color:
-        #666;
+    gap: 12px;
 
 }
 
 
-.stats-section-title {
+/* Scrollbar */
 
-    font-weight:
-        bold;
+.right-panel::-webkit-scrollbar {
 
-    border-bottom:
-        1px solid #dddddd;
+    width: 6px;
 
-    padding-bottom:
-        5px;
+}
 
-    margin-top:
-        12px;
 
-    margin-bottom:
-        7px;
+.right-panel::-webkit-scrollbar-thumb {
+
+    background: #bbb;
+
+    border-radius: 5px;
+
+}
+
+
+/* =========================================
+   PANEL CARD
+========================================= */
+
+.panel-card {
+
+    background: rgba(255,255,255,0.97);
+
+    border-radius: 14px;
+
+    padding: 17px;
+
+    box-shadow:
+        0 3px 15px
+        rgba(0,0,0,0.20);
+
+}
+
+
+.panel-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-bottom: 13px;
+
+    color: #222;
+
+}
+
+
+/* =========================================
+   TOTAL REPORTS
+========================================= */
+
+.total-number {
+
+    font-size: 38px;
+
+    font-weight: 700;
+
+    line-height: 40px;
+
+    color: #111;
+
+}
+
+
+.total-label {
+
+    font-size: 13px;
+
+    color: #666;
+
+    margin-bottom: 16px;
+
+}
+
+
+/* =========================================
+   SECTION TITLES
+========================================= */
+
+.section-title {
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    color: #222;
+
+    border-top:
+        1px solid #e4e4e4;
+
+    padding-top: 12px;
+
+    margin-top: 8px;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* =========================================
+   ISSUE STATISTICS
+========================================= */
+
+.stats-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
 
 }
 
 
 .stat-row {
 
-    display:
-        flex;
+    display: flex;
 
-    justify-content:
-        space-between;
+    align-items: center;
 
-    gap:
-        10px;
+    justify-content: space-between;
+
+    min-height: 32px;
 
     padding:
-        5px 0;
+        5px
+        2px;
 
-    font-size:
-        13px;
+    font-size: 14px;
 
 }
 
 
-.stat-row strong {
+.stat-left {
 
-    font-size:
-        14px;
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    min-width: 0;
 
 }
 
 
-/* =========================================================
-   SEVERITY LEGEND
-   ========================================================= */
+.stat-icon {
 
-.severity-legend {
+    width: 22px;
 
-    background:
-        white;
+    text-align: center;
+
+    flex-shrink: 0;
+
+}
+
+
+.stat-name {
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+.stat-count {
+
+    font-weight: 700;
+
+    min-width: 25px;
+
+    text-align: right;
+
+}
+
+
+/* =========================================
+   SEVERITY
+========================================= */
+
+.severity-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+
+.severity-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    min-height: 30px;
 
     padding:
-        12px 15px;
+        4px
+        2px;
 
-    border-radius:
-        8px;
+    font-size: 14px;
 
-    box-shadow:
-        0 2px 8px rgba(0,0,0,0.25);
+}
 
-    font-size:
-        13px;
+
+.severity-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+}
+
+
+.severity-dot {
+
+    width: 13px;
+
+    height: 13px;
+
+    border-radius: 50%;
+
+    display: inline-block;
+
+    flex-shrink: 0;
+
+}
+
+
+.low {
+
+    background: #2e8b3c;
+
+}
+
+
+.medium {
+
+    background: #ff8a00;
+
+}
+
+
+.severe {
+
+    background: #dc2f35;
+
+}
+
+
+/* =========================================
+   MAP LAYERS
+========================================= */
+
+.layer-group-title {
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    color: #777;
+
+    letter-spacing: 0.5px;
+
+    margin-top: 13px;
+
+    margin-bottom: 5px;
+
+}
+
+
+.layer-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    min-height: 31px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+}
+
+
+.layer-row span {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+}
+
+
+.layer-row input {
+
+    cursor: pointer;
+
+}
+
+
+/* =========================================
+   MINI LEGEND
+========================================= */
+
+.mini-legend {
+
+    margin-top: 15px;
+
+    padding-top: 12px;
+
+    border-top:
+        1px solid #e4e4e4;
 
 }
 
 
 .legend-title {
 
-    font-weight:
-        bold;
+    font-weight: 700;
 
-    font-size:
-        14px;
+    font-size: 13px;
 
-    margin-bottom:
-        8px;
+    margin-bottom: 8px;
 
 }
 
 
 .legend-item {
 
-    display:
-        flex;
+    display: flex;
 
-    align-items:
-        center;
+    align-items: center;
 
-    margin:
-        6px 0;
+    gap: 9px;
 
-}
+    font-size: 13px;
 
-
-.legend-circle {
-
-    width:
-        13px;
-
-    height:
-        13px;
-
-    border-radius:
-        50%;
-
-    display:
-        inline-block;
-
-    margin-right:
-        8px;
-
-    border:
-        1px solid white;
+    margin-bottom: 6px;
 
 }
 
 
-.legend-circle.low {
-
-    background:
-        #2e7d32;
-
-}
-
-
-.legend-circle.medium {
-
-    background:
-        #f57c00;
-
-}
-
-
-.legend-circle.severe {
-
-    background:
-        #d32f2f;
-
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-.modal {
-
-    position:
-        fixed;
-
-    inset:
-        0;
-
-    background:
-        rgba(0,0,0,0.65);
-
-    z-index:
-        5000;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    padding:
-        20px;
-
-}
-
-
-.modal.hidden {
-
-    display:
-        none;
-
-}
-
-
-.modal-content {
-
-    width:
-        min(900px, 100%);
-
-    height:
-        min(90vh, 850px);
-
-    background:
-        white;
-
-    border-radius:
-        12px;
-
-    overflow:
-        hidden;
-
-    display:
-        flex;
-
-    flex-direction:
-        column;
-
-    box-shadow:
-        0 5px 30px rgba(0,0,0,0.4);
-
-}
-
-
-.modal-header {
-
-    background:
-        #12372a;
-
-    color:
-        white;
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        space-between;
-
-    padding:
-        12px 18px;
-
-}
-
-
-.modal-header h2 {
-
-    margin:
-        0;
-
-    font-size:
-        18px;
-
-}
-
-
-.close-btn {
-
-    background:
-        transparent;
-
-    border:
-        none;
-
-    color:
-        white;
-
-    font-size:
-        30px;
-
-    cursor:
-        pointer;
-
-    line-height:
-        1;
-
-}
-
+/* =========================================
+   SELECTED LOCATION
+========================================= */
 
 .selected-location-box {
 
-    background:
-        #f2f7f4;
+    position: absolute;
+
+    bottom: 25px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    z-index: 950;
+
+    width: 320px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0,0,0,0.25);
+
+}
+
+
+.selected-title {
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    margin-bottom: 6px;
+
+}
+
+
+#selectedCoordinates {
+
+    font-size: 12px;
+
+    color: #555;
+
+    margin-bottom: 10px;
+
+}
+
+
+.selected-report-btn {
+
+    width: 100%;
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding: 10px;
+
+    background: #e52f36;
+
+    color: white;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+}
+
+
+.selected-report-btn:hover {
+
+    background: #c9272d;
+
+}
+
+
+.hidden {
+
+    display: none;
+
+}
+
+
+/* =========================================
+   POPUPS
+========================================= */
+
+.leaflet-popup-content {
+
+    margin: 13px;
+
+}
+
+
+.popup-title {
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+
+}
+
+
+.popup-row {
+
+    margin: 4px 0;
+
+    font-size: 13px;
+
+}
+
+
+.popup-severity {
+
+    display: inline-block;
 
     padding:
-        10px 15px;
+        3px
+        7px;
 
-    font-size:
-        13px;
+    border-radius: 10px;
 
-    border-bottom:
-        1px solid #ddd;
+    font-size: 11px;
 
-}
+    font-weight: 700;
 
-
-#selectedLocationText {
-
-    margin-top:
-        4px;
-
-    color:
-        #555;
+    color: white;
 
 }
 
 
-#formFrame {
+.popup-low {
 
-    width:
-        100%;
-
-    flex:
-        1;
-
-    border:
-        none;
+    background: #2e8b3c;
 
 }
 
 
-.modal-footer {
+.popup-medium {
 
-    display:
-        flex;
-
-    justify-content:
-        flex-end;
-
-    gap:
-        8px;
-
-    padding:
-        10px 15px;
-
-    border-top:
-        1px solid #ddd;
+    background: #ff8a00;
 
 }
 
 
-.modal-footer button {
+.popup-severe {
 
-    border:
-        none;
-
-    padding:
-        9px 13px;
-
-    border-radius:
-        6px;
-
-    cursor:
-        pointer;
-
-    font-weight:
-        bold;
+    background: #dc2f35;
 
 }
 
 
-.primary-btn {
-
-    background:
-        #12372a;
-
-    color:
-        white;
-
-}
-
-
-.secondary-btn {
-
-    background:
-        #eeeeee;
-
-    color:
-        #222;
-
-}
-
-
-/* =========================================================
-   LEAFLET LAYER CONTROL
-   ========================================================= */
-
-.leaflet-control-layers {
-
-    border-radius:
-        8px !important;
-
-}
-
-
-/* =========================================================
+/* =========================================
    MOBILE
-   ========================================================= */
+========================================= */
 
-@media
-(max-width: 700px) {
+@media(max-width: 800px) {
+
+    .brand-title {
+
+        font-size: 21px;
+
+    }
+
+
+    .brand-subtitle {
+
+        display: none;
+
+    }
+
 
     .top-header {
 
-        height:
-            auto;
+        height: 70px;
 
-        min-height:
-            110px;
-
-        flex-direction:
-            column;
-
-        align-items:
-            flex-start;
-
-        gap:
-            8px;
-
-        padding:
-            10px 12px;
-
-    }
-
-
-    .top-header h1 {
-
-        font-size:
-            20px;
-
-    }
-
-
-    .header-buttons {
-
-        width:
-            100%;
-
-    }
-
-
-    .header-buttons button {
-
-        flex:
-            1;
-
-        font-size:
-            11px;
-
-        padding:
-            9px 5px;
+        padding: 0 10px;
 
     }
 
 
     #map {
 
-        height:
-            calc(100vh - 110px);
+        top: 70px;
 
     }
 
 
-    .location-status {
-
-        top:
-            120px;
-
-        left:
-            10px;
-
-        right:
-            10px;
-
-        max-width:
-            none;
-
-    }
-
-
-    .report-dashboard {
-
-        top:
-            auto;
-
-        bottom:
-            20px;
-
-        right:
-            10px;
-
-        width:
-            220px;
-
-        max-height:
-            300px;
-
-    }
-
-
-    .modal {
+    .header-btn {
 
         padding:
-            5px;
+            9px
+            11px;
+
+        font-size: 12px;
 
     }
 
 
-    .modal-content {
+    .right-panel {
 
-        height:
-            96vh;
+        top: 80px;
 
-        border-radius:
-            8px;
+        right: 8px;
+
+        width: 280px;
+
+    }
+
+
+    .location-info {
+
+        top: 80px;
+
+        left: 8px;
+
+        font-size: 12px;
 
     }
 
