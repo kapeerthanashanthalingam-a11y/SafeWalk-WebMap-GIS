@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,16 +10,20 @@
     <title>SafeWalk - Western Province</title>
 
     <!-- Leaflet CSS -->
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Leaflet MarkerCluster CSS -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+
+    <!-- Your CSS -->
+    <link rel="stylesheet"
+          href="css/style.css">
 </head>
-
 
 <body>
 
@@ -35,15 +38,11 @@
             </div>
 
             <div>
+                <h1>SafeWalk</h1>
 
-                <div class="brand-title">
-                    SafeWalk
-                </div>
-
-                <div class="brand-subtitle">
+                <p>
                     Public Pedestrian Safety & Complaint Web Map
-                </div>
-
+                </p>
             </div>
 
         </div>
@@ -52,12 +51,12 @@
         <div class="header-buttons">
 
             <button id="locationBtn"
-                    class="header-btn location-btn">
+                    class="location-btn">
                 📍 My Location
             </button>
 
             <button id="reportBtn"
-                    class="header-btn report-btn">
+                    class="report-btn">
                 🚨 Report an Issue
             </button>
 
@@ -68,88 +67,105 @@
 
     <!-- ================= MAP ================= -->
 
-    <div id="map"></div>
+    <main id="map"></main>
 
 
     <!-- ================= LOCATION MESSAGE ================= -->
 
-    <div id="locationInfo"
-         class="location-info">
+    <div id="locationMessage"
+         class="location-message">
 
-        📍
-        <span>
-            Click "My Location" to find your position
-        </span>
+        📌 Click anywhere inside Western Province to select a reporting location.
 
     </div>
 
 
-    <!-- ================= RIGHT INFORMATION PANEL ================= -->
+    <!-- ================= SELECTED LOCATION ================= -->
 
-    <div class="right-panel">
+    <div id="selectedLocation"
+         class="selected-location hidden">
+
+        <strong>Selected Report Location</strong>
+
+        <div id="selectedCoordinates">
+            No location selected
+        </div>
+
+    </div>
 
 
-        <!-- REPORT DASHBOARD -->
+    <!-- ================= REPORT DASHBOARD ================= -->
 
-        <div class="panel-card">
+    <div id="reportDashboard"
+         class="report-dashboard">
 
-            <div class="panel-title">
+        <div class="dashboard-header">
 
-                <span>🚨</span>
+            <div>
+                <div class="dashboard-title">
+                    🚨 SafeWalk Reports
+                </div>
 
-                <span>SafeWalk Reports</span>
-
+                <div class="dashboard-subtitle">
+                    Public pedestrian safety complaints
+                </div>
             </div>
 
+            <button id="refreshReports"
+                    class="refresh-btn"
+                    title="Refresh reports">
+                ↻
+            </button>
 
-            <div class="total-number"
-                 id="totalReports">
+        </div>
 
+
+        <!-- TOTAL REPORTS -->
+
+        <div class="total-section">
+
+            <div id="totalReports"
+                 class="total-number">
                 0
-
             </div>
 
             <div class="total-label">
                 Total Reports
             </div>
 
+        </div>
 
-            <!-- ISSUE TYPES -->
 
-            <div class="section-title">
+        <!-- ISSUE TYPES -->
+
+        <div class="dashboard-section">
+
+            <h3>
                 Issue Types
+            </h3>
+
+            <div id="issueCounts"
+                 class="count-list">
             </div>
 
-
-            <div id="issueStats"
-                 class="stats-list">
-
-                <div class="loading-text">
-                    Loading reports...
-                </div>
-
-            </div>
+        </div>
 
 
-            <!-- SEVERITY -->
+        <!-- SEVERITY -->
 
-            <div class="section-title">
+        <div class="dashboard-section">
+
+            <h3>
                 Severity
-            </div>
+            </h3>
 
+            <div class="severity-row">
 
-            <div class="severity-list">
+                <div class="severity-item">
 
+                    <span class="severity-dot low"></span>
 
-                <div class="severity-row">
-
-                    <span class="severity-left">
-
-                        <span class="severity-dot low"></span>
-
-                        <span>Low</span>
-
-                    </span>
+                    <span>Low</span>
 
                     <strong id="lowCount">
                         0
@@ -158,15 +174,11 @@
                 </div>
 
 
-                <div class="severity-row">
+                <div class="severity-item">
 
-                    <span class="severity-left">
+                    <span class="severity-dot medium"></span>
 
-                        <span class="severity-dot medium"></span>
-
-                        <span>Medium</span>
-
-                    </span>
+                    <span>Medium</span>
 
                     <strong id="mediumCount">
                         0
@@ -175,15 +187,11 @@
                 </div>
 
 
-                <div class="severity-row">
+                <div class="severity-item">
 
-                    <span class="severity-left">
+                    <span class="severity-dot severe"></span>
 
-                        <span class="severity-dot severe"></span>
-
-                        <span>Severe</span>
-
-                    </span>
+                    <span>Severe</span>
 
                     <strong id="severeCount">
                         0
@@ -196,333 +204,101 @@
         </div>
 
 
-        <!-- MAP LAYERS -->
+        <!-- STATUS -->
 
-        <div class="panel-card layers-card">
+        <div id="reportStatus"
+             class="report-status">
 
-            <div class="panel-title">
-
-                <span>🗺️</span>
-
-                <span>Map Layers</span>
-
-            </div>
-
-
-            <!-- BASE MAP -->
-
-            <div class="layer-group-title">
-                Base Map
-            </div>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="radio"
-                           name="basemap"
-                           id="osmRadio"
-                           checked>
-
-                    🗺️ OpenStreetMap
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="radio"
-                           name="basemap"
-                           id="satelliteRadio">
-
-                    🛰️ Satellite
-
-                </span>
-
-            </label>
-
-
-            <!-- INFRASTRUCTURE -->
-
-            <div class="layer-group-title">
-                Infrastructure
-            </div>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="westernCheck"
-                           checked>
-
-                    🟥 Western Province
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="roadsCheck">
-
-                    🛣️ Roads
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="railwayCheck">
-
-                    🚆 Railway
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="railwayStationsCheck">
-
-                    🚉 Railway Stations
-
-                </span>
-
-            </label>
-
-
-            <!-- PEDESTRIAN -->
-
-            <div class="layer-group-title">
-                Pedestrian & Public Facilities
-            </div>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="crossingsCheck">
-
-                    🚶 Pedestrian Crossings
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="trafficLightsCheck">
-
-                    🚦 Traffic Lights
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="busStopsCheck">
-
-                    🚌 Bus Stops
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="schoolsCheck">
-
-                    🏫 Schools
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="hospitalsCheck">
-
-                    🏥 Hospitals
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="parkingCheck">
-
-                    🅿️ Parking
-
-                </span>
-
-            </label>
-
-
-            <!-- REPORT LAYER -->
-
-            <div class="layer-group-title">
-                SafeWalk Reports
-            </div>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="reportsCheck"
-                           checked>
-
-                    🚨 Safety Reports
-
-                </span>
-
-            </label>
-
-
-            <label class="layer-row">
-
-                <span>
-
-                    <input type="checkbox"
-                           id="hotspotCheck"
-                           checked>
-
-                    🔥 Report Hotspots
-
-                </span>
-
-            </label>
-
-
-            <!-- SEVERITY LEGEND -->
-
-            <div class="mini-legend">
-
-                <div class="legend-title">
-                    Complaint Severity
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="severity-dot low"></span>
-
-                    <span>Low</span>
-
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="severity-dot medium"></span>
-
-                    <span>Medium</span>
-
-                </div>
-
-
-                <div class="legend-item">
-
-                    <span class="severity-dot severe"></span>
-
-                    <span>Severe</span>
-
-                </div>
-
-            </div>
+            Loading reports...
 
         </div>
 
     </div>
 
 
-    <!-- ================= SELECTED LOCATION ================= -->
+    <!-- ================= MAP LEGEND ================= -->
 
-    <div id="selectedLocationBox"
-         class="selected-location-box hidden">
+    <div class="map-legend">
 
-        <div class="selected-title">
-            📍 Selected Report Location
+        <div class="legend-title">
+            Complaint Severity
         </div>
 
-        <div id="selectedCoordinates">
-            Click a location on the map
+        <div class="legend-item">
+
+            <span class="legend-symbol low-symbol"></span>
+
+            <span>Low</span>
+
         </div>
 
+        <div class="legend-item">
 
-        <button id="selectedReportBtn"
-                class="selected-report-btn">
+            <span class="legend-symbol medium-symbol"></span>
 
-            🚨 Report This Location
+            <span>Medium</span>
 
-        </button>
+        </div>
+
+        <div class="legend-item">
+
+            <span class="legend-symbol severe-symbol"></span>
+
+            <span>Severe</span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= HELP BOX ================= -->
+
+    <div class="help-box">
+
+        <strong>How to report</strong>
+
+        <ol>
+
+            <li>
+                Click your problem location on the map.
+            </li>
+
+            <li>
+                Click <b>Report an Issue</b>.
+            </li>
+
+            <li>
+                Complete the Google Form.
+            </li>
+
+            <li>
+                Submit your complaint.
+            </li>
+
+            <li>
+                Your report will appear on the map after refresh.
+            </li>
+
+        </ol>
 
     </div>
 
 
     <!-- ================= LEAFLET JS ================= -->
 
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 
-    <!-- ================= LEAFLET HEAT ================= -->
-
-    <script
-        src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js">
-    </script>
+    <!-- Turf.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
 
 
-    <!-- ================= YOUR JS ================= -->
+    <!-- Marker Cluster -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
+
+    <!-- Your JavaScript -->
     <script src="js/script.js"></script>
-
 
 </body>
 
