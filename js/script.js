@@ -2456,6 +2456,7 @@ modal.addEventListener(
 
 // ================================================================
 // 34. LAYER CONTROL
+// MOVED TO LEFT SIDE
 // ================================================================
 
 const baseMaps = {
@@ -2513,7 +2514,10 @@ L.control.layers(
     {
 
         collapsed:
-            false
+            false,
+
+        position:
+            "topleft"
 
     }
 )
@@ -2521,96 +2525,14 @@ L.control.layers(
 
 
 // ================================================================
-// 35. SEVERITY LEGEND
-// ================================================================
-
-const severityLegend =
-    L.control(
-        {
-
-            position:
-                "bottomright"
-
-        }
-    );
-
-
-severityLegend.onAdd =
-    function() {
-
-        const div =
-            L.DomUtil.create(
-                "div",
-                "severity-legend"
-            );
-
-
-        div.innerHTML = `
-
-            <div class="legend-title">
-                Complaint Severity
-            </div>
-
-
-            <div class="legend-item">
-
-                <span
-                    class="legend-circle low"
-                ></span>
-
-                Low
-
-            </div>
-
-
-            <div class="legend-item">
-
-                <span
-                    class="legend-circle medium"
-                ></span>
-
-                Medium
-
-            </div>
-
-
-            <div class="legend-item">
-
-                <span
-                    class="legend-circle severe"
-                ></span>
-
-                Severe
-
-            </div>
-
-        `;
-
-
-        L.DomEvent.disableClickPropagation(
-            div
-        );
-
-
-        return div;
-
-    };
-
-
-severityLegend.addTo(
-    map
-);
-
-
-// ================================================================
-// 36. INITIAL LOAD
+// 35. INITIAL LOAD
 // ================================================================
 
 loadComplaintReports();
 
 
 // ================================================================
-// 37. AUTOMATIC REPORT REFRESH
+// 36. AUTOMATIC REPORT REFRESH
 // Every 30 seconds
 // ================================================================
 
