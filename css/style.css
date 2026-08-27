@@ -1,64 +1,48 @@
-/* =========================================
-   GENERAL
-========================================= */
+/* =========================================================
+   SAFEWALK - MAIN STYLES
+   ========================================================= */
 
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 
 html,
 body {
-
-    margin: 0;
-    padding: 0;
-
     width: 100%;
     height: 100%;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
-
 }
 
 
-/* =========================================
+/* =========================================================
    HEADER
-========================================= */
+   ========================================================= */
 
 .top-header {
 
     height: 84px;
 
-    background:
-        linear-gradient(
-            90deg,
-            #073b2f,
-            #0c4b3c
-        );
+    background: #0d3b2e;
 
     color: white;
 
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
 
-    padding: 0 22px;
+    justify-content: space-between;
+
+    padding: 0 24px;
 
     position: relative;
 
-    z-index: 1000;
+    z-index: 2000;
 
-    box-shadow:
-        0 2px 8px
-        rgba(0,0,0,0.25);
-
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 
@@ -69,38 +53,42 @@ body {
     align-items: center;
 
     gap: 12px;
-
 }
 
 
 .brand-icon {
 
-    font-size: 30px;
+    font-size: 32px;
 
+    width: 40px;
+
+    text-align: center;
 }
 
 
-.brand-title {
+.brand h1 {
 
     font-size: 28px;
 
-    font-weight: 700;
-
     line-height: 30px;
 
+    font-weight: 700;
 }
 
 
-.brand-subtitle {
+.brand p {
 
     font-size: 14px;
 
-    opacity: 0.9;
+    margin-top: 4px;
 
-    margin-top: 3px;
-
+    color: #d9e9e2;
 }
 
+
+/* =========================================================
+   HEADER BUTTONS
+   ========================================================= */
 
 .header-buttons {
 
@@ -108,38 +96,25 @@ body {
 
     gap: 10px;
 
+    align-items: center;
 }
 
 
-.header-btn {
+.header-buttons button {
 
     border: none;
 
     border-radius: 8px;
 
-    padding:
-        12px
-        20px;
+    padding: 13px 20px;
 
     font-size: 14px;
 
-    font-weight: 600;
+    font-weight: 700;
 
     cursor: pointer;
 
-    transition: 0.2s;
-
-}
-
-
-.header-btn:hover {
-
-    transform: translateY(-1px);
-
-    box-shadow:
-        0 3px 8px
-        rgba(0,0,0,0.25);
-
+    transition: 0.2s ease;
 }
 
 
@@ -147,223 +122,169 @@ body {
 
     background: white;
 
-    color: #123c31;
+    color: #1f2937;
+}
 
+
+.location-btn:hover {
+
+    background: #e8f2ee;
+
+    transform: translateY(-1px);
 }
 
 
 .report-btn {
 
-    background: #e52f36;
+    background: #dc3030;
 
     color: white;
-
 }
 
 
-/* =========================================
+.report-btn:hover {
+
+    background: #b91c1c;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
    MAP
-========================================= */
+   ========================================================= */
 
 #map {
 
     position: absolute;
 
     top: 84px;
+
     bottom: 0;
 
     left: 0;
+
     right: 0;
 
     z-index: 1;
-
 }
 
 
-/* =========================================
-   CURRENT LOCATION BOX
-========================================= */
+/* =========================================================
+   LOCATION MESSAGE
+   ========================================================= */
 
-.location-info {
+.location-message {
 
     position: absolute;
 
     top: 98px;
+
     left: 18px;
 
-    z-index: 900;
+    z-index: 1000;
 
     background: white;
 
-    padding:
-        12px
-        15px;
+    padding: 11px 15px;
 
     border-radius: 8px;
 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+
     font-size: 14px;
 
-    box-shadow:
-        0 2px 10px
-        rgba(0,0,0,0.18);
-
+    color: #374151;
 }
 
 
-/* =========================================
-   RIGHT PANEL
-========================================= */
+/* =========================================================
+   SELECTED LOCATION BOX
+   ========================================================= */
 
-.right-panel {
+.selected-location {
 
     position: absolute;
 
-    top: 98px;
+    top: 148px;
 
-    right: 18px;
+    left: 18px;
 
-    width: 315px;
+    z-index: 1000;
 
-    max-height:
-        calc(100vh - 115px);
+    background: white;
 
-    overflow-y: auto;
+    padding: 12px 16px;
 
-    z-index: 900;
+    min-width: 260px;
 
-    display: flex;
+    border-radius: 8px;
 
-    flex-direction: column;
-
-    gap: 12px;
-
-}
-
-
-/* Scrollbar */
-
-.right-panel::-webkit-scrollbar {
-
-    width: 6px;
-
-}
-
-
-.right-panel::-webkit-scrollbar-thumb {
-
-    background: #bbb;
-
-    border-radius: 5px;
-
-}
-
-
-/* =========================================
-   PANEL CARD
-========================================= */
-
-.panel-card {
-
-    background: rgba(255,255,255,0.97);
-
-    border-radius: 14px;
-
-    padding: 17px;
-
-    box-shadow:
-        0 3px 15px
-        rgba(0,0,0,0.20);
-
-}
-
-
-.panel-title {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    font-size: 18px;
-
-    font-weight: 700;
-
-    margin-bottom: 13px;
-
-    color: #222;
-
-}
-
-
-/* =========================================
-   TOTAL REPORTS
-========================================= */
-
-.total-number {
-
-    font-size: 38px;
-
-    font-weight: 700;
-
-    line-height: 40px;
-
-    color: #111;
-
-}
-
-
-.total-label {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
 
     font-size: 13px;
 
-    color: #666;
-
-    margin-bottom: 16px;
-
+    border-left: 4px solid #e63946;
 }
 
 
-/* =========================================
-   SECTION TITLES
-========================================= */
+.selected-location strong {
 
-.section-title {
+    display: block;
 
-    font-size: 16px;
+    margin-bottom: 5px;
 
-    font-weight: 700;
-
-    color: #222;
-
-    border-top:
-        1px solid #e4e4e4;
-
-    padding-top: 12px;
-
-    margin-top: 8px;
-
-    margin-bottom: 8px;
-
+    font-size: 14px;
 }
 
 
-/* =========================================
-   ISSUE STATISTICS
-========================================= */
+#selectedCoordinates {
 
-.stats-list {
+    color: #555;
 
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 3px;
-
+    line-height: 18px;
 }
 
 
-.stat-row {
+.hidden {
+
+    display: none;
+}
+
+
+/* =========================================================
+   REPORT DASHBOARD
+   ========================================================= */
+
+.report-dashboard {
+
+    position: absolute;
+
+    top: 172px;
+
+    right: 16px;
+
+    width: 300px;
+
+    background: rgba(255,255,255,0.98);
+
+    border-radius: 13px;
+
+    padding: 17px;
+
+    z-index: 1000;
+
+    box-shadow: 0 3px 18px rgba(0,0,0,0.22);
+
+    max-height: calc(100vh - 190px);
+
+    overflow-y: auto;
+}
+
+
+/* Dashboard header */
+
+.dashboard-header {
 
     display: flex;
 
@@ -371,109 +292,333 @@ body {
 
     justify-content: space-between;
 
-    min-height: 32px;
+    padding-bottom: 11px;
 
-    padding:
-        5px
-        2px;
-
-    font-size: 14px;
-
+    border-bottom: 1px solid #e5e7eb;
 }
 
 
-.stat-left {
+.dashboard-title {
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+.dashboard-subtitle {
+
+    font-size: 11px;
+
+    color: #6b7280;
+
+    margin-top: 3px;
+}
+
+
+.refresh-btn {
+
+    width: 31px;
+
+    height: 31px;
+
+    border: none;
+
+    background: #f3f4f6;
+
+    border-radius: 50%;
+
+    font-size: 19px;
+
+    cursor: pointer;
+
+    color: #374151;
+}
+
+
+.refresh-btn:hover {
+
+    background: #e5e7eb;
+}
+
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
+
+.total-section {
+
+    padding: 13px 0 10px;
+}
+
+
+.total-number {
+
+    font-size: 36px;
+
+    line-height: 38px;
+
+    font-weight: 700;
+
+    color: #111827;
+}
+
+
+.total-label {
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    margin-top: 3px;
+}
+
+
+/* =========================================================
+   DASHBOARD SECTION
+   ========================================================= */
+
+.dashboard-section {
+
+    border-top: 1px solid #e5e7eb;
+
+    padding-top: 12px;
+
+    margin-top: 8px;
+}
+
+
+.dashboard-section h3 {
+
+    font-size: 15px;
+
+    margin-bottom: 9px;
+
+    color: #111827;
+}
+
+
+/* =========================================================
+   ISSUE COUNT LIST
+   ========================================================= */
+
+.count-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+}
+
+
+.issue-row {
 
     display: flex;
 
     align-items: center;
 
-    gap: 8px;
+    justify-content: space-between;
+
+    font-size: 13px;
+}
+
+
+.issue-name {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
 
     min-width: 0;
-
 }
 
 
-.stat-icon {
+.issue-icon {
 
-    width: 22px;
+    width: 23px;
 
-    text-align: center;
+    height: 23px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f3f4f6;
 
     flex-shrink: 0;
-
 }
 
 
-.stat-name {
+.issue-text {
 
     white-space: nowrap;
 
     overflow: hidden;
 
     text-overflow: ellipsis;
-
 }
 
 
-.stat-count {
+.issue-number {
 
     font-weight: 700;
 
-    min-width: 25px;
+    color: #111827;
 
-    text-align: right;
-
+    margin-left: 10px;
 }
 
 
-/* =========================================
+/* =========================================================
    SEVERITY
-========================================= */
-
-.severity-list {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 3px;
-
-}
-
+   ========================================================= */
 
 .severity-row {
 
     display: flex;
 
-    align-items: center;
+    flex-direction: column;
 
-    justify-content: space-between;
-
-    min-height: 30px;
-
-    padding:
-        4px
-        2px;
-
-    font-size: 14px;
-
+    gap: 9px;
 }
 
 
-.severity-left {
+.severity-item {
 
-    display: flex;
+    display: grid;
+
+    grid-template-columns: 15px 1fr auto;
 
     align-items: center;
 
-    gap: 9px;
+    gap: 8px;
 
+    font-size: 13px;
+}
+
+
+.severity-item strong {
+
+    font-size: 13px;
 }
 
 
 .severity-dot {
+
+    width: 11px;
+
+    height: 11px;
+
+    border-radius: 50%;
+
+    display: inline-block;
+}
+
+
+.severity-dot.low {
+
+    background: #2e8b57;
+}
+
+
+.severity-dot.medium {
+
+    background: #f57c00;
+}
+
+
+.severity-dot.severe {
+
+    background: #d62828;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.report-status {
+
+    border-top: 1px solid #e5e7eb;
+
+    margin-top: 12px;
+
+    padding-top: 9px;
+
+    font-size: 11px;
+
+    color: #6b7280;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   MAP LEGEND
+   ========================================================= */
+
+.map-legend {
+
+    position: absolute;
+
+    right: 16px;
+
+    bottom: 30px;
+
+    z-index: 1000;
+
+    width: 185px;
+
+    background: rgba(255,255,255,0.98);
+
+    border-radius: 10px;
+
+    padding: 14px 15px;
+
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+
+.legend-title {
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    margin-bottom: 11px;
+
+    padding-bottom: 8px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+.legend-item {
+
+    display: grid;
+
+    grid-template-columns: 20px 1fr;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 13px;
+
+    margin: 9px 0;
+}
+
+
+.legend-symbol {
 
     width: 13px;
 
@@ -481,250 +626,127 @@ body {
 
     border-radius: 50%;
 
-    display: inline-block;
+    border: 2px solid white;
 
-    flex-shrink: 0;
-
+    box-shadow: 0 0 0 1px #aaa;
 }
 
 
-.low {
+.low-symbol {
 
-    background: #2e8b3c;
-
+    background: #2e8b57;
 }
 
 
-.medium {
+.medium-symbol {
 
-    background: #ff8a00;
-
+    background: #f57c00;
 }
 
 
-.severe {
+.severe-symbol {
 
-    background: #dc2f35;
-
+    background: #d62828;
 }
 
 
-/* =========================================
-   MAP LAYERS
-========================================= */
+/* =========================================================
+   HELP BOX
+   ========================================================= */
 
-.layer-group-title {
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    text-transform: uppercase;
-
-    color: #777;
-
-    letter-spacing: 0.5px;
-
-    margin-top: 13px;
-
-    margin-bottom: 5px;
-
-}
-
-
-.layer-row {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    min-height: 31px;
-
-    font-size: 14px;
-
-    cursor: pointer;
-
-}
-
-
-.layer-row span {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-}
-
-
-.layer-row input {
-
-    cursor: pointer;
-
-}
-
-
-/* =========================================
-   MINI LEGEND
-========================================= */
-
-.mini-legend {
-
-    margin-top: 15px;
-
-    padding-top: 12px;
-
-    border-top:
-        1px solid #e4e4e4;
-
-}
-
-
-.legend-title {
-
-    font-weight: 700;
-
-    font-size: 13px;
-
-    margin-bottom: 8px;
-
-}
-
-
-.legend-item {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 9px;
-
-    font-size: 13px;
-
-    margin-bottom: 6px;
-
-}
-
-
-/* =========================================
-   SELECTED LOCATION
-========================================= */
-
-.selected-location-box {
+.help-box {
 
     position: absolute;
 
-    bottom: 25px;
+    left: 18px;
 
-    left: 50%;
+    bottom: 30px;
 
-    transform: translateX(-50%);
+    width: 275px;
 
-    z-index: 950;
+    z-index: 1000;
 
-    width: 320px;
+    background: rgba(255,255,255,0.97);
 
-    background: white;
+    padding: 14px 16px;
 
-    border-radius: 12px;
+    border-radius: 10px;
 
-    padding: 14px;
-
-    box-shadow:
-        0 4px 18px
-        rgba(0,0,0,0.25);
-
-}
-
-
-.selected-title {
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    margin-bottom: 6px;
-
-}
-
-
-#selectedCoordinates {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
 
     font-size: 12px;
 
-    color: #555;
-
-    margin-bottom: 10px;
-
+    color: #374151;
 }
 
 
-.selected-report-btn {
+.help-box strong {
 
-    width: 100%;
+    display: block;
 
-    border: none;
-
-    border-radius: 7px;
-
-    padding: 10px;
-
-    background: #e52f36;
-
-    color: white;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-}
-
-
-.selected-report-btn:hover {
-
-    background: #c9272d;
-
-}
-
-
-.hidden {
-
-    display: none;
-
-}
-
-
-/* =========================================
-   POPUPS
-========================================= */
-
-.leaflet-popup-content {
-
-    margin: 13px;
-
-}
-
-
-.popup-title {
-
-    font-size: 16px;
-
-    font-weight: 700;
+    font-size: 14px;
 
     margin-bottom: 7px;
 
+    color: #111827;
+}
+
+
+.help-box ol {
+
+    padding-left: 18px;
+}
+
+
+.help-box li {
+
+    margin-bottom: 4px;
+
+    line-height: 16px;
+}
+
+
+/* =========================================================
+   POPUP
+   ========================================================= */
+
+.report-popup {
+
+    min-width: 240px;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.report-popup h3 {
+
+    margin: 0 0 10px;
+
+    font-size: 16px;
+
+    color: #111827;
 }
 
 
 .popup-row {
 
-    margin: 4px 0;
+    display: grid;
 
-    font-size: 13px;
+    grid-template-columns: 85px 1fr;
 
+    gap: 5px;
+
+    margin: 5px 0;
+
+    font-size: 12px;
+}
+
+
+.popup-label {
+
+    font-weight: 700;
+
+    color: #4b5563;
 }
 
 
@@ -732,108 +754,210 @@ body {
 
     display: inline-block;
 
-    padding:
-        3px
-        7px;
+    padding: 3px 8px;
 
     border-radius: 10px;
+
+    color: white;
 
     font-size: 11px;
 
     font-weight: 700;
 
-    color: white;
-
+    width: fit-content;
 }
 
 
 .popup-low {
 
-    background: #2e8b3c;
-
+    background: #2e8b57;
 }
 
 
 .popup-medium {
 
-    background: #ff8a00;
-
+    background: #f57c00;
 }
 
 
 .popup-severe {
 
-    background: #dc2f35;
-
+    background: #d62828;
 }
 
 
-/* =========================================
+/* =========================================================
+   SELECTED MARKER
+   ========================================================= */
+
+.selected-marker {
+
+    background: #e63946;
+
+    border: 3px solid white;
+
+    border-radius: 50%;
+
+    width: 22px;
+
+    height: 22px;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+
+/* =========================================================
+   CURRENT LOCATION MARKER
+   ========================================================= */
+
+.current-location-marker {
+
+    width: 18px;
+
+    height: 18px;
+
+    background: #1976d2;
+
+    border: 3px solid white;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 0 5px rgba(25,118,210,0.25),
+        0 2px 7px rgba(0,0,0,0.3);
+}
+
+
+/* =========================================================
+   LEAFLET CONTROL ADJUSTMENT
+   ========================================================= */
+
+.leaflet-control-layers {
+
+    border-radius: 8px !important;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18) !important;
+}
+
+
+.leaflet-control-zoom {
+
+    border-radius: 7px !important;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
    MOBILE
-========================================= */
+   ========================================================= */
 
-@media(max-width: 800px) {
-
-    .brand-title {
-
-        font-size: 21px;
-
-    }
-
-
-    .brand-subtitle {
-
-        display: none;
-
-    }
-
+@media (max-width: 800px) {
 
     .top-header {
 
         height: 70px;
 
-        padding: 0 10px;
+        padding: 0 12px;
+    }
 
+
+    .brand h1 {
+
+        font-size: 21px;
+    }
+
+
+    .brand p {
+
+        font-size: 10px;
+    }
+
+
+    .brand-icon {
+
+        font-size: 25px;
+    }
+
+
+    .header-buttons button {
+
+        padding: 10px;
+
+        font-size: 12px;
+    }
+
+
+    .location-btn {
+
+        font-size: 0;
+    }
+
+
+    .location-btn::before {
+
+        content: "📍";
+
+        font-size: 18px;
+    }
+
+
+    .report-btn {
+
+        font-size: 12px;
+
+        padding: 10px 12px !important;
     }
 
 
     #map {
 
         top: 70px;
-
     }
 
 
-    .header-btn {
+    .location-message {
 
-        padding:
-            9px
-            11px;
+        top: 82px;
+
+        left: 10px;
+
+        right: 10px;
 
         font-size: 12px;
-
     }
 
 
-    .right-panel {
+    .selected-location {
 
-        top: 80px;
+        top: 125px;
 
-        right: 8px;
-
-        width: 280px;
-
+        left: 10px;
     }
 
 
-    .location-info {
+    .report-dashboard {
 
-        top: 80px;
+        top: auto;
 
-        left: 8px;
+        bottom: 10px;
 
-        font-size: 12px;
+        right: 10px;
 
+        width: 250px;
+
+        max-height: 45vh;
     }
 
+
+    .map-legend {
+
+        display: none;
+    }
+
+
+    .help-box {
+
+        display: none;
+    }
 }
