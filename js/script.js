@@ -13,6 +13,7 @@ const FORM_VIEW_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSdgncnCOESnZJ2IJYGJAc-TssjL8kB_oAfr15CEbLBS63tLDQ/viewform";
 
 
+// These are the Google Form entry IDs
 const FORM_ENTRY_LONGITUDE =
     "756715849";
 
@@ -36,11 +37,22 @@ const GOOGLE_SHEET_GID =
 // ================================================================
 
 const map =
-    L.map("map")
-        .setView(
-            [6.9271, 79.8612],
-            9
-        );
+    L.map("map", {
+        zoomControl: false
+    })
+    .setView(
+        [6.9271, 79.8612],
+        9
+    );
+
+
+// ================================================================
+// ZOOM CONTROL — BOTTOM LEFT
+// ================================================================
+
+L.control.zoom({
+    position: "bottomleft"
+}).addTo(map);
 
 
 // ================================================================
@@ -51,10 +63,12 @@ const osm =
     L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
+
             maxZoom: 19,
 
             attribution:
                 "© OpenStreetMap contributors"
+
         }
     )
     .addTo(map);
@@ -64,16 +78,18 @@ const satellite =
     L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
+
             maxZoom: 19,
 
             attribution:
                 "Tiles © Esri"
+
         }
     );
 
 
 // ================================================================
-// 5. UTILITY FUNCTION
+// 5. UTILITY FUNCTIONS
 // ================================================================
 
 function safeText(value) {
@@ -238,8 +254,10 @@ loadGeoJSON(
             map.fitBounds(
                 westernProvince.getBounds(),
                 {
+
                     padding:
                         [20, 20]
+
                 }
             );
 
@@ -497,14 +515,7 @@ let complaintLayer =
 
 
 // ================================================================
-// 13. LOCATION VARIABLES
-//
-// IMPORTANT:
-// locationMarker = user's REAL current location
-//
-// selectedMarker = location selected by clicking map
-//
-// They are completely separate.
+// 13. SELECTED REPORT LOCATION
 // ================================================================
 
 let currentLocation =
@@ -584,92 +595,10 @@ function dmsString(
 
 
 // ================================================================
-// 15. REVERSE GEOCODING
-// Gets location/place name from coordinates
+// 15. SELECT REPORT LOCATION
 // ================================================================
 
-async function getLocationName(
-    latitude,
-    longitude
-) {
-
-    try {
-
-        const url =
-            "https://nominatim.openstreetmap.org/reverse" +
-            "?format=jsonv2" +
-            "&lat=" +
-            encodeURIComponent(latitude) +
-            "&lon=" +
-            encodeURIComponent(longitude) +
-            "&zoom=18" +
-            "&addressdetails=1";
-
-
-        const response =
-            await fetch(
-                url,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Reverse geocoding failed"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            data &&
-            data.display_name
-        ) {
-
-            return data.display_name;
-
-        }
-
-
-        return "Selected location";
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Location name error:",
-            error
-        );
-
-
-        return "Selected location";
-
-    }
-
-}
-
-
-// ================================================================
-// 16. SELECT REPORT LOCATION
-//
-// This function is used when the user clicks ANYWHERE
-// inside Western Province.
-//
-// It does NOT remove the user's current-location marker.
-// ================================================================
-
-async function setSelectedLocation(
+function setSelectedLocation(
     latitude,
     longitude,
     label
@@ -681,17 +610,10 @@ async function setSelectedLocation(
             latitude,
 
         lng:
-            longitude,
-
-        label:
-            label || "Selected report location"
+            longitude
 
     };
 
-
-    // ------------------------------------------------------------
-    // Remove ONLY the previous selected report pin
-    // ------------------------------------------------------------
 
     if (
         selectedMarker
@@ -703,10 +625,6 @@ async function setSelectedLocation(
 
     }
 
-
-    // ------------------------------------------------------------
-    // Create NEW selected report marker
-    // ------------------------------------------------------------
 
     selectedMarker =
         L.marker(
@@ -725,57 +643,20 @@ async function setSelectedLocation(
 
 
     selectedMarker.bindPopup(
-
         "📌 <b>Report Location</b><br>" +
-
-        "Getting location name..."
-
+        "Drag this pin if necessary."
     );
 
 
     selectedMarker.openPopup();
 
 
-    // ------------------------------------------------------------
-    // Drag selected report marker
-    // ------------------------------------------------------------
-
     selectedMarker.on(
         "dragend",
-        async function() {
+        function() {
 
             const position =
                 selectedMarker.getLatLng();
-
-
-            const inside =
-                isInsideWesternProvince(
-                    position.lat,
-                    position.lng
-                );
-
-
-            if (
-                !inside
-            ) {
-
-                alert(
-                    "⚠️ The report location must remain inside Western Province."
-                );
-
-
-                // Return marker to previous valid location
-                selectedMarker.setLatLng(
-                    [
-                        latitude,
-                        longitude
-                    ]
-                );
-
-
-                return;
-
-            }
 
 
             currentLocation = {
@@ -795,30 +676,16 @@ async function setSelectedLocation(
                 "Selected report location"
             );
 
-
-            await updateSelectedLocationName(
-                position.lat,
-                position.lng
-            );
-
         }
     );
 
 
-    // ------------------------------------------------------------
-    // Update status
-    // ------------------------------------------------------------
-
     updateLocationStatus(
         latitude,
         longitude,
-        label || "Selected report location"
+        label
     );
 
-
-    // ------------------------------------------------------------
-    // Update Google Form location box
-    // ------------------------------------------------------------
 
     const selectedText =
         document.getElementById(
@@ -832,10 +699,6 @@ async function setSelectedLocation(
 
         selectedText.innerHTML = `
 
-            <b>📍 Report Location</b>
-
-            <br>
-
             Latitude:
             <b>${latitude.toFixed(6)}</b>
 
@@ -844,128 +707,15 @@ async function setSelectedLocation(
             Longitude:
             <b>${longitude.toFixed(6)}</b>
 
-            <br>
-
-            <span id="selectedPlaceName">
-                Finding place name...
-            </span>
-
         `;
 
     }
 
-
-    // ------------------------------------------------------------
-    // Find place name
-    // ------------------------------------------------------------
-
-    await updateSelectedLocationName(
-        latitude,
-        longitude
-    );
-
 }
 
 
 // ================================================================
-// 17. UPDATE SELECTED LOCATION NAME
-// ================================================================
-
-async function updateSelectedLocationName(
-    latitude,
-    longitude
-) {
-
-    const placeName =
-        await getLocationName(
-            latitude,
-            longitude
-        );
-
-
-    currentLocation.label =
-        placeName;
-
-
-    // ------------------------------------------------------------
-    // Update status bar
-    // ------------------------------------------------------------
-
-    updateLocationStatus(
-        latitude,
-        longitude,
-        placeName
-    );
-
-
-    // ------------------------------------------------------------
-    // Update selected-location box
-    // ------------------------------------------------------------
-
-    const placeElement =
-        document.getElementById(
-            "selectedPlaceName"
-        );
-
-
-    if (
-        placeElement
-    ) {
-
-        placeElement.innerHTML =
-            "📍 <b>" +
-            safeText(placeName) +
-            "</b>";
-
-    }
-
-
-    // ------------------------------------------------------------
-    // Update marker popup
-    // ------------------------------------------------------------
-
-    if (
-        selectedMarker
-    ) {
-
-        selectedMarker.bindPopup(`
-
-            <div class="popup-title">
-                📌 Report Location
-            </div>
-
-            <b>Location:</b><br>
-
-            ${safeText(placeName)}
-
-            <br><br>
-
-            <b>Latitude:</b>
-            ${latitude.toFixed(6)}
-
-            <br>
-
-            <b>Longitude:</b>
-            ${longitude.toFixed(6)}
-
-            <br><br>
-
-            <small>
-                Drag this pin if you want to change
-                the report location.
-            </small>
-
-        `);
-
-        selectedMarker.openPopup();
-
-    }
-
-}
-
-
-// ================================================================
-// 18. LOCATION STATUS
+// 16. LOCATION STATUS
 // ================================================================
 
 function updateLocationStatus(
@@ -986,7 +736,7 @@ function updateLocationStatus(
 
         element.innerHTML =
 
-            `📌 <b>${safeText(label)}</b><br>` +
+            `📌 ${safeText(label)} — ` +
 
             `${latitude.toFixed(6)}, ` +
 
@@ -998,12 +748,7 @@ function updateLocationStatus(
 
 
 // ================================================================
-// 19. CURRENT LOCATION
-//
-// IMPORTANT:
-// This ONLY shows user's current position.
-// It does NOT force the report location to be
-// the current location unless the user chooses it.
+// 17. CURRENT LOCATION
 // ================================================================
 
 function locateUser() {
@@ -1043,10 +788,6 @@ function locateUser() {
                 position.coords.longitude;
 
 
-            // ----------------------------------------------------
-            // Remove previous CURRENT LOCATION marker only
-            // ----------------------------------------------------
-
             if (
                 locationMarker
             ) {
@@ -1068,10 +809,6 @@ function locateUser() {
 
             }
 
-
-            // ----------------------------------------------------
-            // Current location marker
-            // ----------------------------------------------------
 
             locationMarker =
                 L.circleMarker(
@@ -1102,13 +839,9 @@ function locateUser() {
 
 
             locationMarker.bindPopup(
-                "📍 <b>Your current location</b>"
+                "📍 Your current location"
             );
 
-
-            // ----------------------------------------------------
-            // Accuracy circle
-            // ----------------------------------------------------
 
             accuracyCircle =
                 L.circle(
@@ -1135,10 +868,6 @@ function locateUser() {
                 .addTo(map);
 
 
-            // ----------------------------------------------------
-            // Zoom to current location
-            // ----------------------------------------------------
-
             map.setView(
                 [
                     latitude,
@@ -1148,16 +877,9 @@ function locateUser() {
             );
 
 
-            // ----------------------------------------------------
-            // IMPORTANT:
-            //
-            // DO NOT change selectedMarker here.
-            //
-            // The user may be physically in Kadubedda,
-            // but may want to report Dehiwala.
-            // ----------------------------------------------------
-
-            updateLocationStatus(
+            // Current location becomes
+            // the report location too.
+            setSelectedLocation(
                 latitude,
                 longitude,
                 "Your current location"
@@ -1200,7 +922,7 @@ function locateUser() {
 
 
 // ================================================================
-// 20. CHECK WHETHER POINT IS INSIDE WESTERN PROVINCE
+// 18. CHECK WHETHER POINT IS INSIDE WESTERN PROVINCE
 // ================================================================
 
 function isInsideWesternProvince(
@@ -1274,27 +996,12 @@ function isInsideWesternProvince(
 
 
 // ================================================================
-// 21. CLICK ANYWHERE ON MAP
-//
-// This is the MAIN CHANGE.
-//
-// The user can click ANY location inside
-// Western Province.
-//
-// Example:
-//
-// User current location = Kadubedda
-//
-// Click map = Dehiwala Junction
-//
-// Current-location marker remains at Kadubedda.
-//
-// Report-location marker moves to Dehiwala.
+// 19. CLICK MAP TO SELECT REPORT LOCATION
 // ================================================================
 
 map.on(
     "click",
-    async function(event) {
+    function(event) {
 
         const latitude =
             event.latlng.lat;
@@ -1329,7 +1036,7 @@ map.on(
         ) {
 
             alert(
-                "⚠️ SafeWalk report locations can only be selected inside Western Province."
+                "⚠️ SafeWalk reports can only be submitted within Western Province."
             );
 
             return;
@@ -1337,12 +1044,7 @@ map.on(
         }
 
 
-        // --------------------------------------------------------
-        // This creates the REPORT location.
-        // It does NOT affect current location.
-        // --------------------------------------------------------
-
-        await setSelectedLocation(
+        setSelectedLocation(
             latitude,
             longitude,
             "Selected report location"
@@ -1353,7 +1055,7 @@ map.on(
 
 
 // ================================================================
-// 22. SEVERITY COLOUR
+// 20. SEVERITY COLOUR
 // ================================================================
 
 function severityColor(
@@ -1402,7 +1104,7 @@ function severityColor(
 
 
 // ================================================================
-// 23. FIND SHEET HEADER
+// 21. FIND SHEET HEADER
 // ================================================================
 
 function findHeader(
@@ -1474,7 +1176,7 @@ function findHeader(
 
 
 // ================================================================
-// 24. CONVERT COORDINATE
+// 22. CONVERT COORDINATE
 // ================================================================
 
 function coordinateToDecimal(
@@ -1504,6 +1206,10 @@ function coordinateToDecimal(
 
     }
 
+
+    // ------------------------------------------------------------
+    // Decimal
+    // ------------------------------------------------------------
 
     const decimalMatch =
         text.match(
@@ -1543,6 +1249,10 @@ function coordinateToDecimal(
 
     }
 
+
+    // ------------------------------------------------------------
+    // DMS
+    // ------------------------------------------------------------
 
     const dmsMatch =
         text.match(
@@ -1607,7 +1317,7 @@ function coordinateToDecimal(
 
 
 // ================================================================
-// 25. UPDATE DASHBOARD
+// 23. UPDATE DASHBOARD
 // ================================================================
 
 function updateReportStatistics(
@@ -1844,7 +1554,7 @@ function updateReportStatistics(
 
 
 // ================================================================
-// 26. LOAD GOOGLE SHEET
+// 24. LOAD GOOGLE SHEET
 // ================================================================
 
 function loadComplaintReports() {
@@ -1880,6 +1590,12 @@ function loadComplaintReports() {
         callbackName;
 
 
+    console.log(
+        "Google Sheet query:",
+        sheetURL
+    );
+
+
     window[
         callbackName
     ] =
@@ -1906,6 +1622,17 @@ function loadComplaintReports() {
             delete window[
                 callbackName
             ];
+
+
+            if (
+                script.parentNode
+            ) {
+
+                script.parentNode.removeChild(
+                    script
+                );
+
+            }
 
         };
 
@@ -1938,12 +1665,18 @@ function loadComplaintReports() {
 
 
 // ================================================================
-// 27. PROCESS GOOGLE SHEET RESPONSE
+// 25. PROCESS GOOGLE SHEET RESPONSE
 // ================================================================
 
 function processGoogleSheetResponse(
     response
 ) {
+
+    console.log(
+        "Google Sheet response:",
+        response
+    );
+
 
     if (
         !response ||
@@ -2018,6 +1751,12 @@ function processGoogleSheetResponse(
     );
 
 
+    console.log(
+        "Google Sheet data:",
+        data
+    );
+
+
     updateReportStatistics(
         data
     );
@@ -2061,6 +1800,11 @@ function processGoogleSheetResponse(
                 !longitudeKey
             ) {
 
+                console.warn(
+                    "Latitude/Longitude columns not found:",
+                    row
+                );
+
                 return;
 
             }
@@ -2082,6 +1826,11 @@ function processGoogleSheetResponse(
                 !Number.isFinite(latitude) ||
                 !Number.isFinite(longitude)
             ) {
+
+                console.warn(
+                    "Invalid coordinates:",
+                    row
+                );
 
                 return;
 
@@ -2430,10 +2179,29 @@ function processGoogleSheetResponse(
     );
 
 
-    // ------------------------------------------------------------
-    // Show complaint layer automatically
-    // ------------------------------------------------------------
+    console.log(
+        "Valid complaint reports:",
+        validReports
+    );
 
+
+    const countElement =
+        document.getElementById(
+            "reportCount"
+        );
+
+
+    if (
+        countElement
+    ) {
+
+        countElement.textContent =
+            validReports;
+
+    }
+
+
+    // Automatically show complaint layer
     if (
         validReports > 0
     ) {
@@ -2456,7 +2224,7 @@ function processGoogleSheetResponse(
 
 
 // ================================================================
-// 28. BUILD GOOGLE FORM URL
+// 26. GOOGLE FORM
 // ================================================================
 
 function buildPrefilledFormURL() {
@@ -2520,7 +2288,7 @@ function buildPrefilledFormURL() {
 
 
 // ================================================================
-// 29. OPEN REPORT FORM
+// 27. OPEN REPORT FORM
 // ================================================================
 
 const modal =
@@ -2547,7 +2315,8 @@ function openReportForm() {
 
         alert(
 
-            "📍 Please click a location inside Western Province first."
+            "📍 First select a report location by clicking " +
+            "My Location or clicking inside Western Province."
 
         );
 
@@ -2558,6 +2327,12 @@ function openReportForm() {
 
     activeFormURL =
         buildPrefilledFormURL();
+
+
+    console.log(
+        "Google Form:",
+        activeFormURL
+    );
 
 
     formFrame.src =
@@ -2572,7 +2347,7 @@ function openReportForm() {
 
 
 // ================================================================
-// 30. REPORT BUTTON
+// 28. REPORT BUTTON
 // ================================================================
 
 document
@@ -2586,7 +2361,7 @@ document
 
 
 // ================================================================
-// 31. CURRENT LOCATION BUTTON
+// 29. CURRENT LOCATION BUTTON
 // ================================================================
 
 document
@@ -2600,7 +2375,7 @@ document
 
 
 // ================================================================
-// 32. CLOSE MODAL
+// 30. CLOSE MODAL FUNCTION
 // ================================================================
 
 function closeReportModal() {
@@ -2614,6 +2389,8 @@ function closeReportModal() {
         "about:blank";
 
 
+    // Refresh reports after returning
+    // from Google Form.
     setTimeout(
         loadComplaintReports,
         3000
@@ -2623,7 +2400,7 @@ function closeReportModal() {
 
 
 // ================================================================
-// 33. CLOSE BUTTONS
+// 31. CLOSE BUTTONS
 // ================================================================
 
 document
@@ -2647,7 +2424,7 @@ document
 
 
 // ================================================================
-// 34. OPEN FORM IN NEW TAB
+// 32. OPEN FORM IN NEW TAB
 // ================================================================
 
 document
@@ -2669,7 +2446,7 @@ document
 
 
 // ================================================================
-// 35. CLOSE MODAL OUTSIDE
+// 33. CLOSE MODAL BY CLICKING OUTSIDE
 // ================================================================
 
 modal.addEventListener(
@@ -2689,7 +2466,8 @@ modal.addEventListener(
 
 
 // ================================================================
-// 36. LAYER CONTROL
+// 34. LAYER CONTROL
+// MOVED TO LEFT SIDE
 // ================================================================
 
 const baseMaps = {
@@ -2741,31 +2519,27 @@ const overlays = {
 };
 
 
-L.control.layers(
+const layerControl = L.control.layers(
     baseMaps,
     overlays,
     {
-
-        collapsed:
-            false,
-
-        position:
-            "topleft"
-
+        collapsed: false
     }
-)
-.addTo(map);
+);
+
+layerControl.addTo(map);
 
 
 // ================================================================
-// 37. INITIAL LOAD
+// 35. INITIAL LOAD
 // ================================================================
 
 loadComplaintReports();
 
 
 // ================================================================
-// 38. AUTOMATIC REPORT REFRESH
+// 36. AUTOMATIC REPORT REFRESH
+// Every 30 seconds
 // ================================================================
 
 setInterval(
