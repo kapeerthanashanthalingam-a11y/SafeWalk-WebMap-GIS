@@ -37,22 +37,11 @@ const GOOGLE_SHEET_GID =
 // ================================================================
 
 const map =
-    L.map("map", {
-        zoomControl: false
-    })
-    .setView(
-        [6.9271, 79.8612],
-        9
-    );
-
-
-// ================================================================
-// ZOOM CONTROL — BOTTOM LEFT
-// ================================================================
-
-L.control.zoom({
-    position: "bottomleft"
-}).addTo(map);
+    L.map("map")
+        .setView(
+            [6.9271, 79.8612],
+            9
+        );
 
 
 // ================================================================
@@ -2519,15 +2508,20 @@ const overlays = {
 };
 
 
-const layerControl = L.control.layers(
+L.control.layers(
     baseMaps,
     overlays,
     {
-        collapsed: false
-    }
-);
 
-layerControl.addTo(map);
+        collapsed:
+            false,
+
+        position:
+            "topleft"
+
+    }
+)
+.addTo(map);
 
 
 // ================================================================
