@@ -16,7 +16,6 @@ const FORM_VIEW_URL =
 const FORM_ENTRY_LONGITUDE =
     "756715849";
 
-
 const FORM_ENTRY_LATITUDE =
     "1288249379";
 
@@ -28,7 +27,6 @@ const FORM_ENTRY_LATITUDE =
 const GOOGLE_SHEET_ID =
     "185KFCSkrNdWvzWWPKBzxKDNuMXpfnJeSnX--gcWVn48";
 
-
 const GOOGLE_SHEET_GID =
     "1834860223";
 
@@ -38,55 +36,25 @@ const GOOGLE_SHEET_GID =
 // ================================================================
 
 const map =
-    L.map(
-        "map",
-        {
-
-            /*
-             * Disable Leaflet's default zoom control.
-             * We add our own bottom-left zoom control below.
-             */
-
-            zoomControl:
-                false
-
-        }
-    )
-    .setView(
-        [6.9271, 79.8612],
-        9
-    );
+    L.map("map")
+        .setView(
+            [6.9271, 79.8612],
+            9
+        );
 
 
 // ================================================================
-// 4. ZOOM CONTROL
-// BOTTOM LEFT
-// ================================================================
-
-L.control.zoom({
-
-    position:
-        "bottomleft"
-
-})
-.addTo(map);
-
-
-// ================================================================
-// 5. BASE MAPS
+// 4. BASE MAPS
 // ================================================================
 
 const osm =
     L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
-
-            maxZoom:
-                19,
+            maxZoom: 19,
 
             attribution:
                 "© OpenStreetMap contributors"
-
         }
     )
     .addTo(map);
@@ -96,63 +64,43 @@ const satellite =
     L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
-
-            maxZoom:
-                19,
+            maxZoom: 19,
 
             attribution:
                 "Tiles © Esri"
-
         }
     );
 
 
 // ================================================================
-// 6. UTILITY FUNCTIONS
+// 5. UTILITY FUNCTION
 // ================================================================
 
-function safeText(
-    value
-) {
+function safeText(value) {
 
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /[&<>\"']/g,
-        function(
-            character
-        ) {
+    return String(value ?? "")
+        .replace(
+            /[&<>\"']/g,
+            function(character) {
 
-            return {
+                return {
 
-                "&":
-                    "&amp;",
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    "\"": "&quot;",
+                    "'": "&#039;"
 
-                "<":
-                    "&lt;",
+                }[character];
 
-                ">":
-                    "&gt;",
-
-                "\"":
-                    "&quot;",
-
-                "'":
-                    "&#039;"
-
-            }[
-                character
-            ];
-
-        }
-    );
+            }
+        );
 
 }
 
 
 // ================================================================
-// 7. GEOJSON LOADER
+// 6. GEOJSON LOADER
 // ================================================================
 
 async function loadGeoJSON(
@@ -169,14 +117,10 @@ async function loadGeoJSON(
 
 
         const response =
-            await fetch(
-                url
-            );
+            await fetch(url);
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
                 `${url} returned ${response.status}`
@@ -189,9 +133,7 @@ async function loadGeoJSON(
             await response.json();
 
 
-        layer.addData(
-            data
-        );
+        layer.addData(data);
 
 
         console.log(
@@ -204,9 +146,7 @@ async function loadGeoJSON(
 
     }
 
-    catch (
-        error
-    ) {
+    catch (error) {
 
         console.error(
             "GeoJSON error:",
@@ -220,7 +160,7 @@ async function loadGeoJSON(
 
 
 // ================================================================
-// 8. WESTERN PROVINCE
+// 7. WESTERN PROVINCE
 // ================================================================
 
 const westernProvince =
@@ -298,10 +238,8 @@ loadGeoJSON(
             map.fitBounds(
                 westernProvince.getBounds(),
                 {
-
                     padding:
                         [20, 20]
-
                 }
             );
 
@@ -312,7 +250,7 @@ loadGeoJSON(
 
 
 // ================================================================
-// 9. ROAD NETWORK
+// 8. ROAD NETWORK
 // DEFAULT = OFF
 // ================================================================
 
@@ -345,7 +283,7 @@ loadGeoJSON(
 
 
 // ================================================================
-// 10. RAILWAY
+// 9. RAILWAY
 // ================================================================
 
 const railway =
@@ -377,7 +315,7 @@ loadGeoJSON(
 
 
 // ================================================================
-// 11. GENERIC POINT LAYER
+// 10. GENERIC POINT LAYER
 // ================================================================
 
 function createPointLayer(
@@ -444,12 +382,9 @@ function createPointLayer(
                         marker.bindPopup(`
 
                             <div class="popup-title">
-
                                 ${emoji}
-                                ${safeText(title)}
-
+                                ${title}
                             </div>
-
 
                             <table class="popup-table">
 
@@ -487,7 +422,7 @@ function createPointLayer(
 
 
 // ================================================================
-// 12. FACILITY LAYERS
+// 11. FACILITY LAYERS
 // ================================================================
 
 const railwayStations =
@@ -554,7 +489,7 @@ const pedestrianCrossings =
 
 
 // ================================================================
-// 13. COMPLAINT LAYER
+// 12. COMPLAINT LAYER
 // ================================================================
 
 let complaintLayer =
@@ -562,7 +497,14 @@ let complaintLayer =
 
 
 // ================================================================
-// 14. SELECTED REPORT LOCATION
+// 13. LOCATION VARIABLES
+//
+// IMPORTANT:
+// locationMarker = user's REAL current location
+//
+// selectedMarker = location selected by clicking map
+//
+// They are completely separate.
 // ================================================================
 
 let currentLocation =
@@ -582,7 +524,7 @@ let accuracyCircle =
 
 
 // ================================================================
-// 15. DMS CONVERSION
+// 14. DMS CONVERSION
 // ================================================================
 
 function dmsString(
@@ -604,9 +546,7 @@ function dmsString(
 
 
     const degrees =
-        Math.floor(
-            number
-        );
+        Math.floor(number);
 
 
     number =
@@ -617,9 +557,7 @@ function dmsString(
 
 
     const minutes =
-        Math.floor(
-            number
-        );
+        Math.floor(number);
 
 
     const seconds =
@@ -633,17 +571,10 @@ function dmsString(
 
         degrees +
         "°" +
-        String(
-            minutes
-        )
-        .padStart(
-            2,
-            "0"
-        ) +
+        String(minutes)
+            .padStart(2, "0") +
         "'" +
-        seconds.toFixed(
-            1
-        ) +
+        seconds.toFixed(1) +
         "\"" +
         hemisphere
 
@@ -653,8 +584,8 @@ function dmsString(
 
 
 // ================================================================
-// 16. REVERSE GEOCODING
-// GET LOCATION NAME FROM COORDINATES
+// 15. REVERSE GEOCODING
+// Gets location/place name from coordinates
 // ================================================================
 
 async function getLocationName(
@@ -668,13 +599,9 @@ async function getLocationName(
             "https://nominatim.openstreetmap.org/reverse" +
             "?format=jsonv2" +
             "&lat=" +
-            encodeURIComponent(
-                latitude
-            ) +
+            encodeURIComponent(latitude) +
             "&lon=" +
-            encodeURIComponent(
-                longitude
-            ) +
+            encodeURIComponent(longitude) +
             "&zoom=18" +
             "&addressdetails=1";
 
@@ -683,25 +610,18 @@ async function getLocationName(
             await fetch(
                 url,
                 {
-
                     headers: {
-
                         "Accept":
                             "application/json"
-
                     }
-
                 }
             );
 
 
-        if (
-            !response.ok
-        ) {
+        if (!response.ok) {
 
             throw new Error(
-                "Reverse geocoding failed: " +
-                response.status
+                "Reverse geocoding failed"
             );
 
         }
@@ -711,13 +631,21 @@ async function getLocationName(
             await response.json();
 
 
-        return data;
+        if (
+            data &&
+            data.display_name
+        ) {
+
+            return data.display_name;
+
+        }
+
+
+        return "Selected location";
 
     }
 
-    catch (
-        error
-    ) {
+    catch(error) {
 
         console.error(
             "Location name error:",
@@ -725,7 +653,7 @@ async function getLocationName(
         );
 
 
-        return null;
+        return "Selected location";
 
     }
 
@@ -733,7 +661,12 @@ async function getLocationName(
 
 
 // ================================================================
-// 17. SELECT REPORT LOCATION
+// 16. SELECT REPORT LOCATION
+//
+// This function is used when the user clicks ANYWHERE
+// inside Western Province.
+//
+// It does NOT remove the user's current-location marker.
 // ================================================================
 
 async function setSelectedLocation(
@@ -750,14 +683,14 @@ async function setSelectedLocation(
         lng:
             longitude,
 
-        name:
-            "Finding location..."
+        label:
+            label || "Selected report location"
 
     };
 
 
     // ------------------------------------------------------------
-    // Remove previous selected marker
+    // Remove ONLY the previous selected report pin
     // ------------------------------------------------------------
 
     if (
@@ -772,7 +705,7 @@ async function setSelectedLocation(
 
 
     // ------------------------------------------------------------
-    // Create selected marker
+    // Create NEW selected report marker
     // ------------------------------------------------------------
 
     selectedMarker =
@@ -791,74 +724,100 @@ async function setSelectedLocation(
         .addTo(map);
 
 
-    // ------------------------------------------------------------
-    // Initial popup
-    // ------------------------------------------------------------
+    selectedMarker.bindPopup(
 
-    selectedMarker.bindPopup(`
+        "📌 <b>Report Location</b><br>" +
 
-        <div
-            style="
-                min-width:220px;
-                font-family:Arial,sans-serif;
-            "
-        >
+        "Getting location name..."
 
-            <div
-                style="
-                    font-size:16px;
-                    font-weight:bold;
-                    margin-bottom:7px;
-                "
-            >
-                📍 Selected Report Location
-            </div>
-
-
-            <div>
-                <b>Finding location name...</b>
-            </div>
-
-
-            <div
-                style="
-                    margin-top:6px;
-                    color:#666;
-                    font-size:12px;
-                "
-            >
-
-                Latitude:
-                ${latitude.toFixed(6)}
-
-                <br>
-
-                Longitude:
-                ${longitude.toFixed(6)}
-
-            </div>
-
-        </div>
-
-    `);
+    );
 
 
     selectedMarker.openPopup();
 
 
     // ------------------------------------------------------------
-    // Update location status
+    // Drag selected report marker
+    // ------------------------------------------------------------
+
+    selectedMarker.on(
+        "dragend",
+        async function() {
+
+            const position =
+                selectedMarker.getLatLng();
+
+
+            const inside =
+                isInsideWesternProvince(
+                    position.lat,
+                    position.lng
+                );
+
+
+            if (
+                !inside
+            ) {
+
+                alert(
+                    "⚠️ The report location must remain inside Western Province."
+                );
+
+
+                // Return marker to previous valid location
+                selectedMarker.setLatLng(
+                    [
+                        latitude,
+                        longitude
+                    ]
+                );
+
+
+                return;
+
+            }
+
+
+            currentLocation = {
+
+                lat:
+                    position.lat,
+
+                lng:
+                    position.lng
+
+            };
+
+
+            updateLocationStatus(
+                position.lat,
+                position.lng,
+                "Selected report location"
+            );
+
+
+            await updateSelectedLocationName(
+                position.lat,
+                position.lng
+            );
+
+        }
+    );
+
+
+    // ------------------------------------------------------------
+    // Update status
     // ------------------------------------------------------------
 
     updateLocationStatus(
         latitude,
         longitude,
-        "Finding location..."
+        label || "Selected report location"
     );
 
 
     // ------------------------------------------------------------
-    // Update form location box
+    // Update Google Form location box
     // ------------------------------------------------------------
 
     const selectedText =
@@ -873,9 +832,7 @@ async function setSelectedLocation(
 
         selectedText.innerHTML = `
 
-            <b>
-                📍 Finding location name...
-            </b>
+            <b>📍 Report Location</b>
 
             <br>
 
@@ -887,187 +844,78 @@ async function setSelectedLocation(
             Longitude:
             <b>${longitude.toFixed(6)}</b>
 
+            <br>
+
+            <span id="selectedPlaceName">
+                Finding place name...
+            </span>
+
         `;
 
     }
 
 
     // ------------------------------------------------------------
-    // Reverse geocode
+    // Find place name
     // ------------------------------------------------------------
 
-    const locationData =
+    await updateSelectedLocationName(
+        latitude,
+        longitude
+    );
+
+}
+
+
+// ================================================================
+// 17. UPDATE SELECTED LOCATION NAME
+// ================================================================
+
+async function updateSelectedLocationName(
+    latitude,
+    longitude
+) {
+
+    const placeName =
         await getLocationName(
             latitude,
             longitude
         );
 
 
-    let locationName =
-        "Location name unavailable";
-
-
-    if (
-        locationData &&
-        locationData.display_name
-    ) {
-
-        locationName =
-            locationData.display_name;
-
-    }
-
-
-    currentLocation.name =
-        locationName;
+    currentLocation.label =
+        placeName;
 
 
     // ------------------------------------------------------------
-    // Create shorter readable location
-    // ------------------------------------------------------------
-
-    let shortLocation =
-        locationName;
-
-
-    if (
-        locationData &&
-        locationData.address
-    ) {
-
-        const address =
-            locationData.address;
-
-
-        const parts =
-            [];
-
-
-        if (
-            address.road
-        ) {
-
-            parts.push(
-                address.road
-            );
-
-        }
-
-
-        if (
-            address.neighbourhood
-        ) {
-
-            parts.push(
-                address.neighbourhood
-            );
-
-        }
-
-
-        if (
-            address.suburb
-        ) {
-
-            parts.push(
-                address.suburb
-            );
-
-        }
-
-
-        if (
-            address.town
-        ) {
-
-            parts.push(
-                address.town
-            );
-
-        }
-
-        else if (
-            address.city
-        ) {
-
-            parts.push(
-                address.city
-            );
-
-        }
-
-        else if (
-            address.village
-        ) {
-
-            parts.push(
-                address.village
-            );
-
-        }
-
-
-        if (
-            parts.length > 0
-        ) {
-
-            shortLocation =
-                parts.join(
-                    ", "
-                );
-
-        }
-
-    }
-
-
-    // ------------------------------------------------------------
-    // Update location status
+    // Update status bar
     // ------------------------------------------------------------
 
     updateLocationStatus(
         latitude,
         longitude,
-        shortLocation
+        placeName
     );
 
 
     // ------------------------------------------------------------
-    // Update form location box
+    // Update selected-location box
     // ------------------------------------------------------------
 
+    const placeElement =
+        document.getElementById(
+            "selectedPlaceName"
+        );
+
+
     if (
-        selectedText
+        placeElement
     ) {
 
-        selectedText.innerHTML = `
-
-            <b>
-                📍 ${safeText(shortLocation)}
-            </b>
-
-            <br>
-
-            <span
-                style="
-                    font-size:12px;
-                    color:#666;
-                "
-            >
-                ${safeText(locationName)}
-            </span>
-
-            <br><br>
-
-            Latitude:
-            <b>${latitude.toFixed(6)}</b>
-
-            <br>
-
-            Longitude:
-            <b>${longitude.toFixed(6)}</b>
-
-        `;
+        placeElement.innerHTML =
+            "📍 <b>" +
+            safeText(placeName) +
+            "</b>";
 
     }
 
@@ -1076,82 +924,42 @@ async function setSelectedLocation(
     // Update marker popup
     // ------------------------------------------------------------
 
-    selectedMarker.setPopupContent(`
+    if (
+        selectedMarker
+    ) {
 
-        <div
-            style="
-                min-width:240px;
-                font-family:Arial,sans-serif;
-            "
-        >
+        selectedMarker.bindPopup(`
 
-            <div
-                style="
-                    font-size:16px;
-                    font-weight:bold;
-                    margin-bottom:8px;
-                "
-            >
-                📍 Selected Report Location
+            <div class="popup-title">
+                📌 Report Location
             </div>
 
+            <b>Location:</b><br>
 
-            <div
-                style="
-                    font-size:14px;
-                    line-height:1.4;
-                "
-            >
+            ${safeText(placeName)}
 
-                <b>
-                    ${safeText(shortLocation)}
-                </b>
+            <br><br>
 
-            </div>
+            <b>Latitude:</b>
+            ${latitude.toFixed(6)}
 
+            <br>
 
-            <div
-                style="
-                    margin-top:7px;
-                    font-size:12px;
-                    color:#666;
-                "
-            >
+            <b>Longitude:</b>
+            ${longitude.toFixed(6)}
 
-                ${safeText(locationName)}
+            <br><br>
 
-            </div>
+            <small>
+                Drag this pin if you want to change
+                the report location.
+            </small>
 
+        `);
 
-            <hr
-                style="
-                    border:0;
-                    border-top:1px solid #ddd;
-                    margin:8px 0;
-                "
-            >
+        selectedMarker.openPopup();
 
-
-            <div
-                style="
-                    font-size:12px;
-                    color:#555;
-                "
-            >
-
-                Latitude:
-                ${latitude.toFixed(6)}
-
-                <br>
-
-                Longitude:
-                ${longitude.toFixed(6)}
-
-            </div>
-
-        </div>
-
-    `);
+    }
 
 }
 
@@ -1178,15 +986,11 @@ function updateLocationStatus(
 
         element.innerHTML =
 
-            `📍 <b>${safeText(label)}</b><br>` +
-
-            `<span style="color:#666;">` +
+            `📌 <b>${safeText(label)}</b><br>` +
 
             `${latitude.toFixed(6)}, ` +
 
-            `${longitude.toFixed(6)}` +
-
-            `</span>`;
+            `${longitude.toFixed(6)}`;
 
     }
 
@@ -1195,6 +999,11 @@ function updateLocationStatus(
 
 // ================================================================
 // 19. CURRENT LOCATION
+//
+// IMPORTANT:
+// This ONLY shows user's current position.
+// It does NOT force the report location to be
+// the current location unless the user chooses it.
 // ================================================================
 
 function locateUser() {
@@ -1224,9 +1033,7 @@ function locateUser() {
 
     navigator.geolocation.getCurrentPosition(
 
-        function(
-            position
-        ) {
+        function(position) {
 
             const latitude =
                 position.coords.latitude;
@@ -1237,28 +1044,7 @@ function locateUser() {
 
 
             // ----------------------------------------------------
-            // Check Western Province
-            // ----------------------------------------------------
-
-            const inside =
-                isInsideWesternProvince(
-                    latitude,
-                    longitude
-                );
-
-
-            if (
-                inside === false
-            ) {
-
-                status.innerHTML =
-                    "⚠️ Your current location is outside Western Province.";
-
-            }
-
-
-            // ----------------------------------------------------
-            // Remove previous location marker
+            // Remove previous CURRENT LOCATION marker only
             // ----------------------------------------------------
 
             if (
@@ -1316,7 +1102,7 @@ function locateUser() {
 
 
             locationMarker.bindPopup(
-                "📍 Your current location"
+                "📍 <b>Your current location</b>"
             );
 
 
@@ -1350,7 +1136,7 @@ function locateUser() {
 
 
             // ----------------------------------------------------
-            // Move map
+            // Zoom to current location
             // ----------------------------------------------------
 
             map.setView(
@@ -1363,27 +1149,24 @@ function locateUser() {
 
 
             // ----------------------------------------------------
-            // Current location becomes report location
+            // IMPORTANT:
+            //
+            // DO NOT change selectedMarker here.
+            //
+            // The user may be physically in Kadubedda,
+            // but may want to report Dehiwala.
             // ----------------------------------------------------
 
-            if (
-                inside !== false
-            ) {
-
-                setSelectedLocation(
-                    latitude,
-                    longitude,
-                    "Your current location"
-                );
-
-            }
+            updateLocationStatus(
+                latitude,
+                longitude,
+                "Your current location"
+            );
 
         },
 
 
-        function(
-            error
-        ) {
+        function(error) {
 
             console.error(
                 error
@@ -1448,9 +1231,7 @@ function isInsideWesternProvince(
 
 
     westernProvince.eachLayer(
-        function(
-            layer
-        ) {
+        function(layer) {
 
             if (
                 layer.feature
@@ -1472,9 +1253,7 @@ function isInsideWesternProvince(
 
                 }
 
-                catch (
-                    error
-                ) {
+                catch(error) {
 
                     console.error(
                         "Boundary check error:",
@@ -1495,14 +1274,27 @@ function isInsideWesternProvince(
 
 
 // ================================================================
-// 21. CLICK MAP TO SELECT REPORT LOCATION
+// 21. CLICK ANYWHERE ON MAP
+//
+// This is the MAIN CHANGE.
+//
+// The user can click ANY location inside
+// Western Province.
+//
+// Example:
+//
+// User current location = Kadubedda
+//
+// Click map = Dehiwala Junction
+//
+// Current-location marker remains at Kadubedda.
+//
+// Report-location marker moves to Dehiwala.
 // ================================================================
 
 map.on(
     "click",
-    function(
-        event
-    ) {
+    async function(event) {
 
         const latitude =
             event.latlng.lat;
@@ -1537,7 +1329,7 @@ map.on(
         ) {
 
             alert(
-                "⚠️ SafeWalk reports can only be submitted within Western Province."
+                "⚠️ SafeWalk report locations can only be selected inside Western Province."
             );
 
             return;
@@ -1545,7 +1337,12 @@ map.on(
         }
 
 
-        setSelectedLocation(
+        // --------------------------------------------------------
+        // This creates the REPORT location.
+        // It does NOT affect current location.
+        // --------------------------------------------------------
+
+        await setSelectedLocation(
             latitude,
             longitude,
             "Selected report location"
@@ -1556,76 +1353,7 @@ map.on(
 
 
 // ================================================================
-// 22. DRAG SELECTED REPORT MARKER
-// ================================================================
-
-function updateDraggedLocation() {
-
-    if (
-        !selectedMarker
-    ) {
-
-        return;
-
-    }
-
-
-    const position =
-        selectedMarker.getLatLng();
-
-
-    const inside =
-        isInsideWesternProvince(
-            position.lat,
-            position.lng
-        );
-
-
-    if (
-        inside === false
-    ) {
-
-        alert(
-            "⚠️ The report location must remain inside Western Province."
-        );
-
-
-        selectedMarker.setLatLng(
-            [
-                currentLocation.lat,
-                currentLocation.lng
-            ]
-        );
-
-
-        return;
-
-    }
-
-
-    setSelectedLocation(
-        position.lat,
-        position.lng,
-        "Selected report location"
-    );
-
-}
-
-
-if (
-    selectedMarker
-) {
-
-    selectedMarker.on(
-        "dragend",
-        updateDraggedLocation
-    );
-
-}
-
-
-// ================================================================
-// 23. SEVERITY COLOUR
+// 22. SEVERITY COLOUR
 // ================================================================
 
 function severityColor(
@@ -1633,11 +1361,9 @@ function severityColor(
 ) {
 
     const severity =
-        String(
-            value || ""
-        )
-        .toLowerCase()
-        .trim();
+        String(value || "")
+            .toLowerCase()
+            .trim();
 
 
     if (
@@ -1676,7 +1402,7 @@ function severityColor(
 
 
 // ================================================================
-// 24. FIND SHEET HEADER
+// 23. FIND SHEET HEADER
 // ================================================================
 
 function findHeader(
@@ -1685,9 +1411,7 @@ function findHeader(
 ) {
 
     const keys =
-        Object.keys(
-            row
-        );
+        Object.keys(row);
 
 
     for (
@@ -1750,7 +1474,7 @@ function findHeader(
 
 
 // ================================================================
-// 25. CONVERT COORDINATE
+// 24. CONVERT COORDINATE
 // ================================================================
 
 function coordinateToDecimal(
@@ -1768,10 +1492,8 @@ function coordinateToDecimal(
 
 
     let text =
-        String(
-            value
-        )
-        .trim();
+        String(value)
+            .trim();
 
 
     if (
@@ -1782,10 +1504,6 @@ function coordinateToDecimal(
 
     }
 
-
-    // ------------------------------------------------------------
-    // Decimal
-    // ------------------------------------------------------------
 
     const decimalMatch =
         text.match(
@@ -1816,9 +1534,7 @@ function coordinateToDecimal(
         ) {
 
             number =
-                -Math.abs(
-                    number
-                );
+                -Math.abs(number);
 
         }
 
@@ -1827,10 +1543,6 @@ function coordinateToDecimal(
 
     }
 
-
-    // ------------------------------------------------------------
-    // DMS
-    // ------------------------------------------------------------
 
     const dmsMatch =
         text.match(
@@ -1895,7 +1607,7 @@ function coordinateToDecimal(
 
 
 // ================================================================
-// 26. UPDATE DASHBOARD
+// 25. UPDATE DASHBOARD
 // ================================================================
 
 function updateReportStatistics(
@@ -1919,9 +1631,7 @@ function updateReportStatistics(
 
 
     data.forEach(
-        function(
-            row
-        ) {
+        function(row) {
 
             const issueKey =
                 findHeader(
@@ -2033,10 +1743,7 @@ function updateReportStatistics(
             issueCounts
         )
         .sort(
-            function(
-                a,
-                b
-            ) {
+            function(a, b) {
 
                 return (
                     issueCounts[b] -
@@ -2048,9 +1755,7 @@ function updateReportStatistics(
 
 
     sortedIssues.forEach(
-        function(
-            issue
-        ) {
+        function(issue) {
 
             html += `
 
@@ -2139,7 +1844,7 @@ function updateReportStatistics(
 
 
 // ================================================================
-// 27. LOAD GOOGLE SHEET
+// 26. LOAD GOOGLE SHEET
 // ================================================================
 
 function loadComplaintReports() {
@@ -2175,18 +1880,10 @@ function loadComplaintReports() {
         callbackName;
 
 
-    console.log(
-        "Google Sheet query:",
-        sheetURL
-    );
-
-
     window[
         callbackName
     ] =
-        function(
-            response
-        ) {
+        function(response) {
 
             try {
 
@@ -2196,9 +1893,7 @@ function loadComplaintReports() {
 
             }
 
-            catch (
-                error
-            ) {
+            catch(error) {
 
                 console.error(
                     "Google Sheet processing error:",
@@ -2243,18 +1938,12 @@ function loadComplaintReports() {
 
 
 // ================================================================
-// 28. PROCESS GOOGLE SHEET RESPONSE
+// 27. PROCESS GOOGLE SHEET RESPONSE
 // ================================================================
 
 function processGoogleSheetResponse(
     response
 ) {
-
-    console.log(
-        "Google Sheet response:",
-        response
-    );
-
 
     if (
         !response ||
@@ -2283,9 +1972,7 @@ function processGoogleSheetResponse(
 
 
     rows.forEach(
-        function(
-            row
-        ) {
+        function(row) {
 
             const object =
                 {};
@@ -2331,12 +2018,6 @@ function processGoogleSheetResponse(
     );
 
 
-    console.log(
-        "Google Sheet data:",
-        data
-    );
-
-
     updateReportStatistics(
         data
     );
@@ -2350,9 +2031,7 @@ function processGoogleSheetResponse(
 
 
     data.forEach(
-        function(
-            row
-        ) {
+        function(row) {
 
             const latitudeKey =
                 findHeader(
@@ -2382,11 +2061,6 @@ function processGoogleSheetResponse(
                 !longitudeKey
             ) {
 
-                console.warn(
-                    "Latitude/Longitude columns not found:",
-                    row
-                );
-
                 return;
 
             }
@@ -2405,18 +2079,9 @@ function processGoogleSheetResponse(
 
 
             if (
-                !Number.isFinite(
-                    latitude
-                ) ||
-                !Number.isFinite(
-                    longitude
-                )
+                !Number.isFinite(latitude) ||
+                !Number.isFinite(longitude)
             ) {
-
-                console.warn(
-                    "Invalid coordinates:",
-                    row
-                );
 
                 return;
 
@@ -2542,10 +2207,6 @@ function processGoogleSheetResponse(
                 "";
 
 
-            // ----------------------------------------------------
-            // Complaint marker
-            // ----------------------------------------------------
-
             const marker =
                 L.circleMarker(
                     [
@@ -2575,10 +2236,6 @@ function processGoogleSheetResponse(
                 );
 
 
-            // ----------------------------------------------------
-            // Popup
-            // ----------------------------------------------------
-
             let popup = `
 
                 <div class="popup-title">
@@ -2587,6 +2244,7 @@ function processGoogleSheetResponse(
 
 
                 <table class="popup-table">
+
 
                     <tr>
 
@@ -2715,10 +2373,6 @@ function processGoogleSheetResponse(
             `;
 
 
-            // ----------------------------------------------------
-            // PHOTO
-            // ----------------------------------------------------
-
             if (
                 photo &&
                 /^https?:\/\//i.test(
@@ -2726,146 +2380,29 @@ function processGoogleSheetResponse(
                 )
             ) {
 
-                const photoText =
-                    String(
-                        photo
-                    );
+                popup += `
 
+                    <tr>
 
-                let driveFileId =
-                    null;
+                        <td>
+                            Evidence
+                        </td>
 
+                        <td>
 
-                let driveMatch =
-                    photoText.match(
-                        /\/file\/d\/([-\w]{20,})/
-                    );
+                            <a
+                                href="${safeText(photo)}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                📷 View Photo
+                            </a>
 
+                        </td>
 
-                if (
-                    !driveMatch
-                ) {
+                    </tr>
 
-                    driveMatch =
-                        photoText.match(
-                            /[?&]id=([-\w]{20,})/
-                        );
-
-                }
-
-
-                if (
-                    driveMatch
-                ) {
-
-                    driveFileId =
-                        driveMatch[1];
-
-                }
-
-
-                if (
-                    driveFileId
-                ) {
-
-                    const imageURL =
-                        "https://drive.google.com/thumbnail" +
-                        "?id=" +
-                        encodeURIComponent(
-                            driveFileId
-                        ) +
-                        "&sz=w1000";
-
-
-                    const viewURL =
-                        "https://drive.google.com/file/d/" +
-                        encodeURIComponent(
-                            driveFileId
-                        ) +
-                        "/view";
-
-
-                    popup += `
-
-                        <tr>
-
-                            <td>
-                                Evidence
-                            </td>
-
-                            <td>
-
-                                <div
-                                    style="
-                                        margin-top:5px;
-                                        text-align:center;
-                                    "
-                                >
-
-                                    <img
-                                        src="${imageURL}"
-                                        alt="Complaint evidence"
-                                        style="
-                                            width:100%;
-                                            max-width:220px;
-                                            max-height:160px;
-                                            object-fit:cover;
-                                            border-radius:8px;
-                                            border:1px solid #ddd;
-                                            display:block;
-                                            margin:0 auto 7px auto;
-                                        "
-                                        onerror="
-                                            this.style.display='none';
-                                        "
-                                    >
-
-
-                                    <a
-                                        href="${viewURL}"
-                                        target="_blank"
-                                        rel="noopener"
-                                    >
-                                        📷 Open Full Photo
-                                    </a>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-                else {
-
-                    popup += `
-
-                        <tr>
-
-                            <td>
-                                Evidence
-                            </td>
-
-                            <td>
-
-                                <a
-                                    href="${safeText(photoText)}"
-                                    target="_blank"
-                                    rel="noopener"
-                                >
-                                    📷 View Photo
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
+                `;
 
             }
 
@@ -2893,14 +2430,8 @@ function processGoogleSheetResponse(
     );
 
 
-    console.log(
-        "Valid complaint reports:",
-        validReports
-    );
-
-
     // ------------------------------------------------------------
-    // Automatically show complaint layer
+    // Show complaint layer automatically
     // ------------------------------------------------------------
 
     if (
@@ -2925,7 +2456,7 @@ function processGoogleSheetResponse(
 
 
 // ================================================================
-// 29. BUILD PREFILLED GOOGLE FORM URL
+// 28. BUILD GOOGLE FORM URL
 // ================================================================
 
 function buildPrefilledFormURL() {
@@ -2989,7 +2520,7 @@ function buildPrefilledFormURL() {
 
 
 // ================================================================
-// 30. GOOGLE FORM MODAL
+// 29. OPEN REPORT FORM
 // ================================================================
 
 const modal =
@@ -3008,10 +2539,6 @@ let activeFormURL =
     FORM_VIEW_URL;
 
 
-// ================================================================
-// 31. OPEN REPORT FORM
-// ================================================================
-
 function openReportForm() {
 
     if (
@@ -3019,7 +2546,9 @@ function openReportForm() {
     ) {
 
         alert(
-            "📍 First select a report location by clicking My Location or clicking inside Western Province."
+
+            "📍 Please click a location inside Western Province first."
+
         );
 
         return;
@@ -3029,12 +2558,6 @@ function openReportForm() {
 
     activeFormURL =
         buildPrefilledFormURL();
-
-
-    console.log(
-        "Google Form:",
-        activeFormURL
-    );
 
 
     formFrame.src =
@@ -3049,7 +2572,7 @@ function openReportForm() {
 
 
 // ================================================================
-// 32. REPORT BUTTON
+// 30. REPORT BUTTON
 // ================================================================
 
 document
@@ -3063,7 +2586,7 @@ document
 
 
 // ================================================================
-// 33. CURRENT LOCATION BUTTON
+// 31. CURRENT LOCATION BUTTON
 // ================================================================
 
 document
@@ -3077,7 +2600,7 @@ document
 
 
 // ================================================================
-// 34. CLOSE REPORT MODAL
+// 32. CLOSE MODAL
 // ================================================================
 
 function closeReportModal() {
@@ -3091,7 +2614,6 @@ function closeReportModal() {
         "about:blank";
 
 
-    // Refresh reports after returning
     setTimeout(
         loadComplaintReports,
         3000
@@ -3101,7 +2623,7 @@ function closeReportModal() {
 
 
 // ================================================================
-// 35. CLOSE BUTTONS
+// 33. CLOSE BUTTONS
 // ================================================================
 
 document
@@ -3125,7 +2647,7 @@ document
 
 
 // ================================================================
-// 36. OPEN FORM IN NEW TAB
+// 34. OPEN FORM IN NEW TAB
 // ================================================================
 
 document
@@ -3147,14 +2669,12 @@ document
 
 
 // ================================================================
-// 37. CLOSE MODAL BY CLICKING OUTSIDE
+// 35. CLOSE MODAL OUTSIDE
 // ================================================================
 
 modal.addEventListener(
     "click",
-    function(
-        event
-    ) {
+    function(event) {
 
         if (
             event.target === modal
@@ -3169,8 +2689,7 @@ modal.addEventListener(
 
 
 // ================================================================
-// 38. LAYER CONTROL
-// LEFT-MIDDLE
+// 36. LAYER CONTROL
 // ================================================================
 
 const baseMaps = {
@@ -3239,15 +2758,14 @@ L.control.layers(
 
 
 // ================================================================
-// 39. INITIAL LOAD
+// 37. INITIAL LOAD
 // ================================================================
 
 loadComplaintReports();
 
 
 // ================================================================
-// 40. AUTOMATIC REPORT REFRESH
-// EVERY 30 SECONDS
+// 38. AUTOMATIC REPORT REFRESH
 // ================================================================
 
 setInterval(
