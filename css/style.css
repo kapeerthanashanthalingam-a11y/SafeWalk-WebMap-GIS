@@ -773,3 +773,24 @@ body {
     }
 
 }
+
+
+/* =========================================================
+   LAYER CONTROL — LEFT MIDDLE
+   ========================================================= */
+
+.leaflet-control-layers {
+
+    position: fixed !important;
+
+    left: 15px !important;
+
+    top: 50% !important;
+
+    transform: translateY(-50%);
+
+    margin: 0 !important;
+
+    z-index: 1200 !important;
+
+}
