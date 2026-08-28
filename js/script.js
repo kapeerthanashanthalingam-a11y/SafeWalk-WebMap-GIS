@@ -2508,20 +2508,15 @@ const overlays = {
 };
 
 
-L.control.layers(
+const layerControl = L.control.layers(
     baseMaps,
     overlays,
     {
-
-        collapsed:
-            false,
-
-        position:
-            "topleft"
-
+        collapsed: false
     }
-)
-.addTo(map);
+);
+
+layerControl.addTo(map);
 
 
 // ================================================================
